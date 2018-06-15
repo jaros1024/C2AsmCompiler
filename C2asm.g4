@@ -21,11 +21,19 @@ external_declaration
     ;
 
 
-function_definition
-	:	declaration_specifiers? declarator
+/*function_definition
+	:	declaration_specifiers? variable_declarator
 		(	declaration+ compound_statement	// K&R style
 		|	compound_statement				// ANSI style
 		)
+	;*/
+
+/*function_definition
+	:	declaration_specifiers? variable_declarator declaration+ compound_statement
+	;*/
+
+function_definition
+	:	declaration_specifiers function_direct_declarator compound_statement
 	;
 
 preprocessor_directive
@@ -50,9 +58,22 @@ define
 	| declaration_specifiers init_declarator_list? ';'
 	;*/
 
-declaration
+/*declaration
 	: declaration_specifiers init_declarator_list? ';'
-	;
+	;*/
+
+declaration
+    : variable_declaration
+    | function_declaration
+    ;
+
+function_declaration
+    : declaration_specifiers function_direct_declarator ';'
+    ;
+
+variable_declaration
+    : declaration_specifiers variable_init_declarator_list ';'
+    ;
 
 declaration_specifiers
 	:   (   storage_class_specifier
@@ -61,12 +82,12 @@ declaration_specifiers
         )+
 	;
 
-init_declarator_list
+variable_init_declarator_list
 	: init_declarator (',' init_declarator)*
 	;
 
 init_declarator
-	: declarator ('=' initializer)?
+	: variable_declarator ('=' initializer)?
 	;
 
 storage_class_specifier
@@ -117,7 +138,7 @@ struct_declarator_list
 	;
 
 struct_declarator
-	: declarator (':' constant_expression)?
+	: variable_declarator (':' constant_expression)?
 	| ':' constant_expression
 	;
 
@@ -140,25 +161,38 @@ type_qualifier
 	| 'volatile'
 	;
 
-declarator
-	: pointer? direct_declarator
+variable_declarator
+	: pointer? variable_direct_declarator
 	| pointer
 	;
 
-direct_declarator
+/*variable_direct_declarator
 	:   (	IDENTIFIER
-		|	'(' declarator ')'
+		|	'(' variable_declarator ')'
 		)
         declarator_suffix*
-	;
+	;*/
 
-declarator_suffix
+variable_direct_declarator
+    : IDENTIFIER variable_declarator_suffix*
+    ;
+
+/*variable_declarator_suffix
 	:   '[' constant_expression ']'
     |   '[' ']'
     |   '(' parameter_type_list ')'
     |   '(' identifier_list ')'
     |   '(' ')'
+	;*/
+
+variable_declarator_suffix
+	:   '[' constant_expression ']'
+    |   '[' ']'
 	;
+
+function_direct_declarator
+    : IDENTIFIER '(' parameter_type_list* ')'
+    ;
 
 pointer
 	: '*' type_qualifier+ pointer?
@@ -175,7 +209,7 @@ parameter_list
 	;
 
 parameter_declaration
-	: declaration_specifiers (declarator|abstract_declarator)*
+	: declaration_specifiers (variable_declarator|abstract_declarator)*
 	;
 
 identifier_list
@@ -352,11 +386,15 @@ statement
 	| selection_statement
 	| iteration_statement
 	| jump_statement
+	| function_call_statement
 	;
 
+/*statement
+    : jump_statement
+    ;*/
+
 labeled_statement
-	: IDENTIFIER ':' statement
-	| 'case' constant_expression ':' statement
+	: 'case' constant_expression ':' statement
 	| 'default' ':' statement
 	;
 
@@ -390,6 +428,10 @@ jump_statement
 	| 'return' ';'
 	| 'return' expression ';'
 	;
+
+function_call_statement
+    : IDENTIFIER '(' identifier_list* ')' ';'
+    ;
 
 IDENTIFIER
 	:	LETTER (LETTER|'0'..'9')*
