@@ -1,5 +1,6 @@
 package com.perez.jaroslav.compiler;
 
+import com.perez.jaroslav.compiler.exceptions.BadSyntaxException;
 import com.perez.jaroslav.compiler.listener.MyListener;
 import com.perez.jaroslav.compiler.antlr.C2asmLexer;
 import com.perez.jaroslav.compiler.antlr.C2asmParser;
@@ -8,8 +9,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -26,8 +26,18 @@ public class Main {
         C2asmParser parser = new C2asmParser(tokens);
         ParseTree tree = parser.compilationUnit();
 
-        MyListener listener = new MyListener();
-        ParseTreeWalker.DEFAULT.walk(listener, tree);
+        PrintStream stream = null;
+        try {
+            stream = new PrintStream(new FileOutputStream(new File("out.s")));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        MyListener listener = new MyListener(stream);
+        try {
+            ParseTreeWalker.DEFAULT.walk(listener, tree);
+        } catch (BadSyntaxException e){
+            System.out.println("Syntax error: " + e.getMessage());
+        }
     }
 
 }

@@ -1,4 +1,4 @@
-// Generated from C:/Users/Jarek/IdeaProjects/AntlrSampleProject\C2asm.g4 by ANTLR 4.7
+// Generated from C:/Users/Jarek/IdeaProjects/C2AsmCompiler\C2asm.g4 by ANTLR 4.7
 
 package com.perez.jaroslav.compiler.antlr;
 
@@ -90,6 +90,26 @@ public interface C2asmListener extends ParseTreeListener {
 	 */
 	void exitDeclaration(C2asmParser.DeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link C2asmParser#function_declaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunction_declaration(C2asmParser.Function_declarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link C2asmParser#function_declaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunction_declaration(C2asmParser.Function_declarationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link C2asmParser#variable_declaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterVariable_declaration(C2asmParser.Variable_declarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link C2asmParser#variable_declaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitVariable_declaration(C2asmParser.Variable_declarationContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link C2asmParser#declaration_specifiers}.
 	 * @param ctx the parse tree
 	 */
@@ -100,15 +120,15 @@ public interface C2asmListener extends ParseTreeListener {
 	 */
 	void exitDeclaration_specifiers(C2asmParser.Declaration_specifiersContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link C2asmParser#init_declarator_list}.
+	 * Enter a parse tree produced by {@link C2asmParser#variable_init_declarator_list}.
 	 * @param ctx the parse tree
 	 */
-	void enterInit_declarator_list(C2asmParser.Init_declarator_listContext ctx);
+	void enterVariable_init_declarator_list(C2asmParser.Variable_init_declarator_listContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link C2asmParser#init_declarator_list}.
+	 * Exit a parse tree produced by {@link C2asmParser#variable_init_declarator_list}.
 	 * @param ctx the parse tree
 	 */
-	void exitInit_declarator_list(C2asmParser.Init_declarator_listContext ctx);
+	void exitVariable_init_declarator_list(C2asmParser.Variable_init_declarator_listContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link C2asmParser#init_declarator}.
 	 * @param ctx the parse tree
@@ -250,35 +270,45 @@ public interface C2asmListener extends ParseTreeListener {
 	 */
 	void exitType_qualifier(C2asmParser.Type_qualifierContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link C2asmParser#declarator}.
+	 * Enter a parse tree produced by {@link C2asmParser#variable_declarator}.
 	 * @param ctx the parse tree
 	 */
-	void enterDeclarator(C2asmParser.DeclaratorContext ctx);
+	void enterVariable_declarator(C2asmParser.Variable_declaratorContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link C2asmParser#declarator}.
+	 * Exit a parse tree produced by {@link C2asmParser#variable_declarator}.
 	 * @param ctx the parse tree
 	 */
-	void exitDeclarator(C2asmParser.DeclaratorContext ctx);
+	void exitVariable_declarator(C2asmParser.Variable_declaratorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link C2asmParser#direct_declarator}.
+	 * Enter a parse tree produced by {@link C2asmParser#variable_direct_declarator}.
 	 * @param ctx the parse tree
 	 */
-	void enterDirect_declarator(C2asmParser.Direct_declaratorContext ctx);
+	void enterVariable_direct_declarator(C2asmParser.Variable_direct_declaratorContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link C2asmParser#direct_declarator}.
+	 * Exit a parse tree produced by {@link C2asmParser#variable_direct_declarator}.
 	 * @param ctx the parse tree
 	 */
-	void exitDirect_declarator(C2asmParser.Direct_declaratorContext ctx);
+	void exitVariable_direct_declarator(C2asmParser.Variable_direct_declaratorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link C2asmParser#declarator_suffix}.
+	 * Enter a parse tree produced by {@link C2asmParser#variable_declarator_suffix}.
 	 * @param ctx the parse tree
 	 */
-	void enterDeclarator_suffix(C2asmParser.Declarator_suffixContext ctx);
+	void enterVariable_declarator_suffix(C2asmParser.Variable_declarator_suffixContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link C2asmParser#declarator_suffix}.
+	 * Exit a parse tree produced by {@link C2asmParser#variable_declarator_suffix}.
 	 * @param ctx the parse tree
 	 */
-	void exitDeclarator_suffix(C2asmParser.Declarator_suffixContext ctx);
+	void exitVariable_declarator_suffix(C2asmParser.Variable_declarator_suffixContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link C2asmParser#function_direct_declarator}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunction_direct_declarator(C2asmParser.Function_direct_declaratorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link C2asmParser#function_direct_declarator}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunction_direct_declarator(C2asmParser.Function_direct_declaratorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link C2asmParser#pointer}.
 	 * @param ctx the parse tree
@@ -699,4 +729,14 @@ public interface C2asmListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitJump_statement(C2asmParser.Jump_statementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link C2asmParser#function_call_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunction_call_statement(C2asmParser.Function_call_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link C2asmParser#function_call_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunction_call_statement(C2asmParser.Function_call_statementContext ctx);
 }

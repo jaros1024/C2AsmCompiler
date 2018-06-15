@@ -1,12 +1,15 @@
-// Generated from C:/Users/Jarek/IdeaProjects/AntlrSampleProject\C2asm.g4 by ANTLR 4.7
+// Generated from C:/Users/Jarek/IdeaProjects/C2AsmCompiler\C2asm.g4 by ANTLR 4.7
 
 package com.perez.jaroslav.compiler.antlr;
 
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
+import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class C2asmLexer extends Lexer {
@@ -59,7 +62,7 @@ public class C2asmLexer extends Lexer {
 		"','", "'='", "'extern'", "'static'", "'auto'", "'register'", "'void'", 
 		"'char'", "'short'", "'int'", "'long'", "'float'", "'double'", "'signed'", 
 		"'unsigned'", "'{'", "'}'", "'struct'", "':'", "'enum'", "'const'", "'volatile'", 
-		"'('", "')'", "'['", "']'", "'*'", "'...'", "'+'", "'-'", "'/'", "'%'", 
+		"'['", "']'", "'('", "')'", "'*'", "'...'", "'+'", "'-'", "'/'", "'%'", 
 		"'++'", "'--'", "'sizeof'", "'.'", "'->'", "'&'", "'~'", "'!'", "'*='", 
 		"'/='", "'%='", "'+='", "'-='", "'<<='", "'>>='", "'&='", "'^='", "'|='", 
 		"'?'", "'||'", "'&&'", "'|'", "'^'", "'=='", "'!='", "'<='", "'>='", "'<<'", 
@@ -265,8 +268,8 @@ public class C2asmLexer extends Lexer {
 		"\2\u014c\u014d\7u\2\2\u014d\u014e\7v\2\2\u014e:\3\2\2\2\u014f\u0150\7"+
 		"x\2\2\u0150\u0151\7q\2\2\u0151\u0152\7n\2\2\u0152\u0153\7c\2\2\u0153\u0154"+
 		"\7v\2\2\u0154\u0155\7k\2\2\u0155\u0156\7n\2\2\u0156\u0157\7g\2\2\u0157"+
-		"<\3\2\2\2\u0158\u0159\7*\2\2\u0159>\3\2\2\2\u015a\u015b\7+\2\2\u015b@"+
-		"\3\2\2\2\u015c\u015d\7]\2\2\u015dB\3\2\2\2\u015e\u015f\7_\2\2\u015fD\3"+
+		"<\3\2\2\2\u0158\u0159\7]\2\2\u0159>\3\2\2\2\u015a\u015b\7_\2\2\u015b@"+
+		"\3\2\2\2\u015c\u015d\7*\2\2\u015dB\3\2\2\2\u015e\u015f\7+\2\2\u015fD\3"+
 		"\2\2\2\u0160\u0161\7,\2\2\u0161F\3\2\2\2\u0162\u0163\7\60\2\2\u0163\u0164"+
 		"\7\60\2\2\u0164\u0165\7\60\2\2\u0165H\3\2\2\2\u0166\u0167\7-\2\2\u0167"+
 		"J\3\2\2\2\u0168\u0169\7/\2\2\u0169L\3\2\2\2\u016a\u016b\7\61\2\2\u016b"+
