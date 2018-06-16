@@ -120,4 +120,9 @@ public class MyListener extends C2asmBaseListener {
         }
         compilationUnit.addGlobal(identifier, type, value);
     }
+
+    @Override
+    public void enterAdditive_expression(C2asmParser.Additive_expressionContext ctx){
+        //
+    }
 }

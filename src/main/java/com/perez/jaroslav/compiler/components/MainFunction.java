@@ -9,9 +9,9 @@ public class MainFunction extends Function {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(".global _start \n");
         stringBuilder.append("_start: \n");
-
-        //todo implement the rest
-
+        for(Action action : actionList){
+            stringBuilder.append(action.generate());
+        }
         stringBuilder.append("MOV $" + SystemFunctions.EXIT_64 + ",%rax \n");
         stringBuilder.append("SYSCALL \n");
 

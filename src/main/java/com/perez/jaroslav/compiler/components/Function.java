@@ -9,8 +9,7 @@ public class Function {
     public String name;
     public String type;
     public List<Argument> argumentList;
-
-    protected StringBuilder content;
+    public List<Action> actionList;
 
     public Function() {
     }
@@ -26,19 +25,15 @@ public class Function {
         stringBuilder.append(format(".type %s,@function \n\n", name));
         stringBuilder.append(format("%s: \n", name));
         initStack(stringBuilder);
-
-        //todo implement
-
+        for(Action action : actionList){
+            stringBuilder.append(action.generate());
+        }
         cleanStack(stringBuilder);
         stringBuilder.append(ret(TypeHelper.getTypeSize(type)));
         stringBuilder.append('\n');
 
 
         return stringBuilder.toString();
-    }
-
-    public void start(){
-
     }
 
     private String ret(int size){
@@ -53,6 +48,10 @@ public class Function {
     private void cleanStack(StringBuilder stringBuilder){
         stringBuilder.append("MOV %rbp,%rsp\n");
         stringBuilder.append("POP %rbp\n");
+    }
+
+    public void addAction(Action action){
+        actionList.add(action);
     }
 
     public static class Argument {

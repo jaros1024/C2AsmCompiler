@@ -1,9 +1,6 @@
 package com.perez.jaroslav.compiler.program;
 
-import com.perez.jaroslav.compiler.components.Define;
-import com.perez.jaroslav.compiler.components.Function;
-import com.perez.jaroslav.compiler.components.Global;
-import com.perez.jaroslav.compiler.components.MainFunction;
+import com.perez.jaroslav.compiler.components.*;
 import com.perez.jaroslav.compiler.helpers.TypeHelper;
 
 import java.util.HashMap;
@@ -58,6 +55,10 @@ public class CompilationUnit {
         if(!identifier.equals("main")){
             parsedFunction = functions.get(identifier);
         }
+    }
+
+    public void addActionToParsedFunction (Action action){
+        parsedFunction.addAction(action);
     }
 
     public void endFunction(){
