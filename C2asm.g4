@@ -386,7 +386,6 @@ statement
 	| selection_statement
 	| iteration_statement
 	| jump_statement
-	| function_call_statement
 	;
 
 /*statement
@@ -429,9 +428,6 @@ jump_statement
 	| 'return' expression ';'
 	;
 
-function_call_statement
-    : IDENTIFIER '(' identifier_list* ')' ';'
-    ;
 
 IDENTIFIER
 	:	LETTER (LETTER|'0'..'9')*

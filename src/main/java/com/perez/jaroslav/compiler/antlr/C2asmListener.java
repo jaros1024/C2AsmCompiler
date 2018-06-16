@@ -729,14 +729,4 @@ public interface C2asmListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitJump_statement(C2asmParser.Jump_statementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link C2asmParser#function_call_statement}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunction_call_statement(C2asmParser.Function_call_statementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link C2asmParser#function_call_statement}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunction_call_statement(C2asmParser.Function_call_statementContext ctx);
 }
