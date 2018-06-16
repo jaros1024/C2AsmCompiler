@@ -1,9 +1,10 @@
 package com.perez.jaroslav.compiler;
 
 import com.perez.jaroslav.compiler.exceptions.BadSyntaxException;
-import com.perez.jaroslav.compiler.listener.MyListener;
 import com.perez.jaroslav.compiler.antlr.C2asmLexer;
 import com.perez.jaroslav.compiler.antlr.C2asmParser;
+import com.perez.jaroslav.compiler.listener.RedirectListener;
+import com.perez.jaroslav.compiler.listener.functional.MainListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -32,7 +33,10 @@ public class Main {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        MyListener listener = new MyListener(stream);
+        //MyListener listener = new MyListener(stream);
+        RedirectListener listener = new RedirectListener(stream);
+        MainListener mainListener = new MainListener();
+        listener.setBaseListener(mainListener);
         try {
             ParseTreeWalker.DEFAULT.walk(listener, tree);
         } catch (BadSyntaxException e){

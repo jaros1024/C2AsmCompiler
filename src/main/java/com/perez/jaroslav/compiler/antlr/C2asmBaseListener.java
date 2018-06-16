@@ -877,18 +877,6 @@ public class C2asmBaseListener implements C2asmListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitJump_statement(C2asmParser.Jump_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFunction_call_statement(C2asmParser.Function_call_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFunction_call_statement(C2asmParser.Function_call_statementContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
