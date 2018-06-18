@@ -19,7 +19,7 @@ public class SystemFunctions {
         ExternalFunction printf = new ExternalFunction();
         printf.name = "printf";
         printf.type = "void";
-        printf.argumentList = new LinkedList<>();
+        printf.arguments = new HashMap<>();
         printf.variableLength = true;
         printf.mustHaveArguments = 1;
         stdio.put(printf.name, printf);

@@ -1,10 +1,6 @@
-package com.perez.jaroslav.compiler.components;
+package com.perez.jaroslav.compiler.components.variables;
 
-public class Global {
-    public String name;
-    public String type;
-    public String value;
-
+public class Global extends AbstractVariable {
     public Global() {
     }
 

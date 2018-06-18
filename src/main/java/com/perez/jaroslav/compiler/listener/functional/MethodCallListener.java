@@ -1,8 +1,8 @@
 package com.perez.jaroslav.compiler.listener.functional;
 
 import com.perez.jaroslav.compiler.antlr.C2asmParser;
-import com.perez.jaroslav.compiler.components.arguments.MethodArgument;
-import com.perez.jaroslav.compiler.components.arguments.TextArgument;
+import com.perez.jaroslav.compiler.components.callarguments.MethodArgument;
+import com.perez.jaroslav.compiler.components.callarguments.TextArgument;
 import com.perez.jaroslav.compiler.listener.base.AbstractBaseListener;
 
 import java.util.LinkedList;

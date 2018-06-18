@@ -1,6 +1,4 @@
-package com.perez.jaroslav.compiler.components.arguments;
-
-import java.util.List;
+package com.perez.jaroslav.compiler.components.callarguments;
 
 public class MethodArgument {
     public static final int TYPE_CONST = 0;

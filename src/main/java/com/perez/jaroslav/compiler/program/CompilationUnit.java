@@ -1,19 +1,26 @@
 package com.perez.jaroslav.compiler.program;
 
 import com.perez.jaroslav.compiler.components.*;
-import com.perez.jaroslav.compiler.components.arguments.MethodArgument;
-import com.perez.jaroslav.compiler.components.arguments.TextArgument;
+import com.perez.jaroslav.compiler.components.callarguments.MethodArgument;
+import com.perez.jaroslav.compiler.components.callarguments.TextArgument;
 import com.perez.jaroslav.compiler.components.functions.AbstractFunction;
 import com.perez.jaroslav.compiler.components.functions.ExternalFunction;
 import com.perez.jaroslav.compiler.components.functions.Function;
+import com.perez.jaroslav.compiler.components.functions.MainFunction;
+import com.perez.jaroslav.compiler.components.variables.AbstractVariable;
+import com.perez.jaroslav.compiler.components.variables.ArgumentVariable;
+import com.perez.jaroslav.compiler.components.variables.Global;
+import com.perez.jaroslav.compiler.components.variables.Variable;
 import com.perez.jaroslav.compiler.exceptions.BadSyntaxException;
 import com.perez.jaroslav.compiler.helpers.Registers;
+import com.perez.jaroslav.compiler.helpers.StackHelper;
 import com.perez.jaroslav.compiler.helpers.SystemFunctions;
 import com.perez.jaroslav.compiler.helpers.TypeHelper;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 
 import static java.lang.String.format;
 
@@ -24,7 +31,6 @@ public class CompilationUnit {
     private HashMap<String, Global> globals = new HashMap<>();
     private HashMap<String, Function> functions = new HashMap<>();
     private MainFunction mainFunction = new MainFunction();
-    //private List<String> externalFunctions = new LinkedList<>();
     private HashMap<String, ExternalFunction> externalFunctions = new HashMap<>();
 
     public Function parsedFunction;
@@ -62,10 +68,10 @@ public class CompilationUnit {
         globals.put(identifier, new Global(identifier, type, value));
     }
 
-    public void addFunction(String identifier, String type, List<Function.Argument> args){
+    public void addFunction(String identifier, String type, HashMap<String, ArgumentVariable> args){
         if(identifier.equals("main") && type.equals("int")){
             parsedFunction = mainFunction;
-            parsedFunction.argumentList = args;
+            parsedFunction.arguments = args;
             parsedFunction.name = identifier;
             parsedFunction.type = type;
             parsedFunction.start();
@@ -98,8 +104,16 @@ public class CompilationUnit {
             if(function == null){
                 throw new BadSyntaxException(format("Unknown function: %s", name));
             }
+            else {
+                callExternalFunction((ExternalFunction)function, arguments);
+            }
         }
+        else {
+            callOwnFunction((Function)function, arguments);
+        }
+    }
 
+    private void callExternalFunction(ExternalFunction function, List<MethodArgument> arguments){
         StringBuilder stringBuilder = new StringBuilder();
         int arg_count = 0;
         for(MethodArgument arg : arguments){
@@ -117,21 +131,134 @@ public class CompilationUnit {
             }
             else if(arg.type == MethodArgument.TYPE_CONST){
                 String where = Registers.getRegisterForArgument(arg_count);
+                //there are no more free registers, we have to push the argument into the stack
                 if(where == null){
                     stringBuilder.append("PUSH $" + arg.value + "\n");
                 }
+                //there is a free register
                 else {
                     stringBuilder.append("MOV $" + arg.value + ",%" + where + "\n");
                     arg_count++;
                 }
             }
-            //todo variable arguments
+            else if(arg.type == MethodArgument.TYPE_VAR){
+                AbstractVariable variable = getVariable(arg.value);
+
+                String where = Registers.getRegisterForArgument(arg_count);
+                if(where == null){
+                    stringBuilder.append("XOR %r15,%r15\n");
+
+                    //if this is a variable
+                    if(variable instanceof Variable){
+                        Variable v = (Variable) variable;
+                        stringBuilder.append(TypeHelper.getMove(v.type).toUpperCase() + " " + v.address +
+                                ",%" + Registers.getRegisterForType("r15", v.type) + "\n");
+                    }
+                    //if this is global variable
+                    else if(variable instanceof Global){
+                        stringBuilder.append(TypeHelper.getMove(variable.type).toUpperCase() + " " + variable.name +
+                                ",%" + Registers.getRegisterForType("r15", variable.type) + "\n");
+                    }
+                    else if(variable instanceof ArgumentVariable){
+                        ArgumentVariable av = (ArgumentVariable) variable;
+                        if(av.storageType == ArgumentVariable.TYPE_STACK){
+                            int position = StackHelper.getPositionOnStack(Integer.parseInt(av.location));
+                            stringBuilder.append("MOV " + position + "(%rbp),%" +
+                                    Registers.getRegisterForType("r15", av.type) + "\n");
+                        }
+                        else {
+                            stringBuilder.append("MOV %" + av.location + ",%" +
+                                    Registers.getRegisterForType("r15", av.type) + "\n");
+                        }
+                    }
+                    stringBuilder.append("PUSH %r15\n");
+                }
+                else {
+                    stringBuilder.append("XOR %" + where + ",%" + where + "\n");
+                    //if this is variable
+                    if(variable instanceof Variable){
+                        Variable v = (Variable) variable;
+                        stringBuilder.append(TypeHelper.getMove(v.type).toUpperCase() + " " + v.address +
+                                ",%" + Registers.getRegisterForType(where, v.type) + "\n");
+                    }
+                    //if this is global variable
+                    else if(variable instanceof Global){
+                        stringBuilder.append(TypeHelper.getMove(variable.type).toUpperCase() + " " + variable.name +
+                                ",%" + Registers.getRegisterForType(where, variable.type) + "\n");
+                    }
+                    //if this is function argument variable
+                    else if(variable instanceof ArgumentVariable){
+                        ArgumentVariable av = (ArgumentVariable) variable;
+                        if(av.storageType == ArgumentVariable.TYPE_STACK){
+                            int position = StackHelper.getPositionOnStack(Integer.parseInt(av.location));
+                            stringBuilder.append(TypeHelper.getMove(av.type) + " " + position + "(%rbp),%" +
+                                    Registers.getRegisterForType(where, av.type) + "\n");
+                        }
+                        else {
+                            stringBuilder.append("MOV %" + av.location + ",%" + where + "\n");
+                        }
+                    }
+                }
+            }
         }
         if(function.variableLength){
-            int vArguments = arguments.size() - function.mustHaveArguments;
-            stringBuilder.append("MOV $" + vArguments + ",%rax\n");
+            //int vArguments = arguments.size() - function.mustHaveArguments;
+            //stringBuilder.append("MOV $" + vArguments + ",%rax\n");
+            stringBuilder.append("XOR %eax,%eax\n");
         }
-        stringBuilder.append(format("CALL %s\n", name));
+        stringBuilder.append(format("CALL %s\n", function.name));
+        parsedFunction.addCode(stringBuilder.toString());
+    }
+
+    private void callOwnFunction(Function function, List<MethodArgument> arguments){
+        Stack<MethodArgument> stack = new Stack<>();
+        for(MethodArgument methodArgument : arguments){
+            stack.push(methodArgument);
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        while(!stack.empty()){
+            MethodArgument methodArgument = stack.pop();
+            if(methodArgument instanceof TextArgument){
+                TextArgument textArgument = (TextArgument) methodArgument;
+                globals.put(textArgument.label, new Global(textArgument.label, "text", textArgument.value));
+                stringBuilder.append("PUSH $" + textArgument.label + "\n");
+            }
+            else if(methodArgument.type == MethodArgument.TYPE_CONST){
+                stringBuilder.append("PUSH $" + methodArgument.value + "\n");
+            }
+            else if(methodArgument.type == MethodArgument.TYPE_VAR){
+                AbstractVariable variable = getVariable(methodArgument.value);
+
+                stringBuilder.append("XOR %r15,%r15\n");
+
+                //if this is a variable
+                if(variable instanceof Variable){
+                    Variable v = (Variable) variable;
+                    stringBuilder.append(TypeHelper.getMove(v.type).toUpperCase() + " " + v.address +
+                            ",%" + Registers.getRegisterForType("r15", v.type) + "\n");
+                }
+                //if this is global variable
+                else if(variable instanceof Global){
+                    stringBuilder.append(TypeHelper.getMove(variable.type).toUpperCase() + " " + variable.name +
+                            ",%" + Registers.getRegisterForType("r15", variable.type) + "\n");
+                }
+                else if(variable instanceof ArgumentVariable){
+                    ArgumentVariable av = (ArgumentVariable) variable;
+                    if(av.storageType == ArgumentVariable.TYPE_STACK){
+                        int position = StackHelper.getPositionOnStack(Integer.parseInt(av.location));
+                        stringBuilder.append("MOV " + position + "(%rbp),%" +
+                                Registers.getRegisterForType("r15", av.type) + "\n");
+                    }
+                    else {
+                        stringBuilder.append("MOV %" + av.location + ",%" +
+                                Registers.getRegisterForType("r15", av.type) + "\n");
+                    }
+                }
+                stringBuilder.append("PUSH %r15\n");
+            }
+        }
+        stringBuilder.append(format("CALL %s\n", function.name));
         parsedFunction.addCode(stringBuilder.toString());
     }
 
@@ -162,5 +289,16 @@ public class CompilationUnit {
         /*for(String s : externalFunctions.keySet()){
             stringBuilder.append(format("extern %s \n", s));
         }*/
+    }
+
+    private AbstractVariable getVariable(String name){
+        AbstractVariable variable = parsedFunction.getLocalVariable(name);
+        if(variable == null){
+            variable = parsedFunction.getArgument(name);
+            if(variable == null){
+                variable = globals.get(name);
+            }
+        }
+        return variable;
     }
 }

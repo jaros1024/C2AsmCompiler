@@ -1,4 +1,4 @@
-package com.perez.jaroslav.compiler.components.arguments;
+package com.perez.jaroslav.compiler.components.callarguments;
 
 import com.perez.jaroslav.compiler.util.RandomString;
 
