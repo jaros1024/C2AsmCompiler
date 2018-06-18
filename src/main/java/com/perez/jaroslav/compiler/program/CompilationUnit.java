@@ -1,10 +1,13 @@
 package com.perez.jaroslav.compiler.program;
 
 import com.perez.jaroslav.compiler.components.*;
+import com.perez.jaroslav.compiler.components.arguments.MethodArgument;
+import com.perez.jaroslav.compiler.components.arguments.TextArgument;
 import com.perez.jaroslav.compiler.components.functions.AbstractFunction;
 import com.perez.jaroslav.compiler.components.functions.ExternalFunction;
 import com.perez.jaroslav.compiler.components.functions.Function;
 import com.perez.jaroslav.compiler.exceptions.BadSyntaxException;
+import com.perez.jaroslav.compiler.helpers.Registers;
 import com.perez.jaroslav.compiler.helpers.SystemFunctions;
 import com.perez.jaroslav.compiler.helpers.TypeHelper;
 
@@ -88,7 +91,7 @@ public class CompilationUnit {
         parsedFunction = null;
     }
 
-    public void callFunction(String name, List<String> arguments){
+    public void callFunction(String name, List<MethodArgument> arguments){
         AbstractFunction function = functions.get(name);
         if(function == null){
             function = externalFunctions.get(name);
@@ -98,11 +101,38 @@ public class CompilationUnit {
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        for(String arg : arguments){
-
+        int arg_count = 0;
+        for(MethodArgument arg : arguments){
+            if(arg instanceof TextArgument){
+                TextArgument textArgument = (TextArgument) arg;
+                globals.put(textArgument.label, new Global(textArgument.label, "text", textArgument.value));
+                String where = Registers.getRegisterForArgument(arg_count);
+                if(where == null){
+                    stringBuilder.append("PUSH $" + textArgument.label + "\n");
+                }
+                else {
+                    stringBuilder.append("MOV $" + textArgument.label + ",%" + where + "\n");
+                    arg_count++;
+                }
+            }
+            else if(arg.type == MethodArgument.TYPE_CONST){
+                String where = Registers.getRegisterForArgument(arg_count);
+                if(where == null){
+                    stringBuilder.append("PUSH $" + arg.value + "\n");
+                }
+                else {
+                    stringBuilder.append("MOV $" + arg.value + ",%" + where + "\n");
+                    arg_count++;
+                }
+            }
+            //todo variable arguments
+        }
+        if(function.variableLength){
+            int vArguments = arguments.size() - function.mustHaveArguments;
+            stringBuilder.append("MOV $" + vArguments + ",%rax\n");
         }
         stringBuilder.append(format("CALL %s\n", name));
-
+        parsedFunction.addCode(stringBuilder.toString());
     }
 
     private void makeConstants(){
@@ -129,8 +159,8 @@ public class CompilationUnit {
     }
 
     private void makeExterns(){
-        for(String s : externalFunctions.keySet()){
+        /*for(String s : externalFunctions.keySet()){
             stringBuilder.append(format("extern %s \n", s));
-        }
+        }*/
     }
 }

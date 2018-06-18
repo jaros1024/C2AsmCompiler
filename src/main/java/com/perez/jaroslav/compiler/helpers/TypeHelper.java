@@ -7,8 +7,9 @@ public class TypeHelper {
     private static HashMap<String, Integer> typeSizes = new HashMap<>();
 
     static {
-        types.put("int", ".dword");
+        types.put("int", ".long");
         types.put("char", ".byte");
+        types.put("text", ".asciz");
 
         typeSizes.put("int", 4);
         typeSizes.put("char", 1);

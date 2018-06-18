@@ -10,9 +10,9 @@ hehe */
 int main()
 {
    // printf() displays the string inside quotation
-   //printf("Hello, World!\n");
-   blabla(test);
-   return ab;
+   printf("Hello, World!\n");
+   //blabla(test);
+   //return ab;
    return 0;
 }
 
@@ -24,5 +24,6 @@ void blabla(int arg, char znak)
 int sample_function()
 {
     blabla(test);
+    blabla(8);
     return 3;
 }
