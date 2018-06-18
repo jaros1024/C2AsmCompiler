@@ -9,20 +9,23 @@ int sample_function();
 hehe */
 int main()
 {
+   int zmienna = 8;
    // printf() displays the string inside quotation
-   //printf("Hello, World!\n");
+   printf("Hello, World!\n");
+   blabla(zmienna);
    blabla(test);
-   return ab;
+   //return ab;
    return 0;
 }
 
-void blabla(int arg, char znak)
+void blabla(int arg)
 {
-	printf("arg = %d", arg);
+	printf("arg = %d\n", arg);
 }
 
 int sample_function()
 {
     blabla(test);
+    blabla(8);
     return 3;
 }

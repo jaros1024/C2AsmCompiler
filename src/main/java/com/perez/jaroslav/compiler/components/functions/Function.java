@@ -1,22 +1,28 @@
 package com.perez.jaroslav.compiler.components.functions;
 
+import com.perez.jaroslav.compiler.components.variables.ArgumentVariable;
+import com.perez.jaroslav.compiler.components.variables.Variable;
 import com.perez.jaroslav.compiler.exceptions.BadSyntaxException;
 import com.perez.jaroslav.compiler.helpers.TypeHelper;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import static java.lang.String.format;
 
-public class Function extends AbstractFunction{
+public class Function extends AbstractFunction {
 
+    protected HashMap<String, Variable> localVariables = new LinkedHashMap<>();
     protected StringBuilder content;
+    protected int localVariableStackPtr = 0;
 
     public Function() {
     }
 
-    public Function(String name, String type, List<Argument> argumentList) {
+    public Function(String name, String type, HashMap<String, ArgumentVariable> arguments) {
         this.name = name;
         this.type = type;
-        this.argumentList = argumentList;
+        this.arguments = arguments;
     }
 
     public String generate(){
@@ -24,6 +30,7 @@ public class Function extends AbstractFunction{
         stringBuilder.append(format(".type %s,@function \n\n", name));
         stringBuilder.append(format("%s: \n", name));
         initStack(stringBuilder);
+        makeLocalVariables(stringBuilder);
 
         stringBuilder.append(content.toString());
 
@@ -69,6 +76,13 @@ public class Function extends AbstractFunction{
         content.append(ret(0));
     }
 
+    public void addLocalVariable(String identifier, String type, String value){
+        int size = TypeHelper.getTypeSize(type);
+        localVariableStackPtr += size;
+        Variable variable = new Variable(identifier, type, value, "-" + localVariableStackPtr + "(%rbp)");
+        localVariables.put(identifier, variable);
+    }
+
     private String ret(int size){
         return (size == 0 ? "ret" : format("ret %d", size)) + "\n";
     }
@@ -83,8 +97,16 @@ public class Function extends AbstractFunction{
         stringBuilder.append("POP %rbp\n");
     }
 
-    public static class Argument {
-        public String name;
-        public String type;
+    protected void makeLocalVariables(StringBuilder stringBuilder){
+        for(String str : localVariables.keySet()){
+            Variable v = localVariables.get(str);
+            int length = TypeHelper.getTypeSize(v.type);
+            stringBuilder.append("SUB $" + length + ",%rsp\n");
+            stringBuilder.append(TypeHelper.getMove(v.type).toUpperCase() + " $" + v.value + "," + v.address + "\n");
+        }
+    }
+
+    public Variable getLocalVariable(String name){
+        return localVariables.get(name);
     }
 }

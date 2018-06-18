@@ -19,8 +19,9 @@ public class SystemFunctions {
         ExternalFunction printf = new ExternalFunction();
         printf.name = "printf";
         printf.type = "void";
-        //todo add variable length argument list
-        printf.argumentList = new LinkedList<>();
+        printf.arguments = new HashMap<>();
+        printf.variableLength = true;
+        printf.mustHaveArguments = 1;
         stdio.put(printf.name, printf);
         headers.put("stdio", stdio);
     }
