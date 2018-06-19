@@ -58,6 +58,23 @@ public class ExpressionEvaluator {
         }
     }
 
+    public void loadEqualityExpression(){
+        if(copyValues){
+            String first = releaseRegister();
+            String second = getLatestRegister();
+            content.append("XOR %" + first + ",%" + second + "\n");
+        }
+    }
+
+    public void loadInequalityExpression(){
+        if(copyValues){
+            String first = releaseRegister();
+            String second = getLatestRegister();
+            content.append("XOR %" + first + ",%" + second + "\n");
+            content.append("NOT %" + second + "\n");
+        }
+    }
+
     public void loadAssignmentExpression(){
         content.append("MOV %r8," + assignmentTarget + "\n");
         assignmentTarget = null;

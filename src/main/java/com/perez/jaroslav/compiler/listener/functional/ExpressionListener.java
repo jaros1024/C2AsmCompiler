@@ -6,6 +6,7 @@ import com.perez.jaroslav.compiler.expressions.PrimaryExpression;
 import com.perez.jaroslav.compiler.expressions.evaluator.ExpressionEvaluator;
 import com.perez.jaroslav.compiler.helpers.VariableHelper;
 import com.perez.jaroslav.compiler.listener.base.AbstractBaseListener;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 public class ExpressionListener extends AbstractBaseListener {
     private List<String> expressions = new LinkedList<>();
     private ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
+    private boolean shouldReturn = true;
 
     @Override
     public void exitExpression(C2asmParser.ExpressionContext ctx) {
@@ -21,6 +23,9 @@ public class ExpressionListener extends AbstractBaseListener {
             //System.out.println(str);
         }
         if(ctx.parent.getRuleIndex() != 48){
+            if(shouldReturn){
+                expressionEvaluator.loadInnerExpression();
+            }
             redirectListener.getCompilationUnit().parsedFunction.addCode(expressionEvaluator.getExpression());
             redirectListener.setBaseListener(new MainListener(), this);
             System.out.println(expressionEvaluator.getExpression());
@@ -123,6 +128,7 @@ public class ExpressionListener extends AbstractBaseListener {
     public void exitAssignment_expression(C2asmParser.Assignment_expressionContext ctx) {
         if(ctx.children.size() > 1){
             expressionEvaluator.loadAssignmentExpression();
+            shouldReturn = false;
         }
     }
 
@@ -156,7 +162,6 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void exitLogical_and_expression(C2asmParser.Logical_and_expressionContext ctx) {
-        expressions.add("Logical and expr: " + ctx.getText());
         if(ctx.children.size() > 1){
             expressionEvaluator.loadLogicalAndExpression();
         }
@@ -199,7 +204,15 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void exitEquality_expression(C2asmParser.Equality_expressionContext ctx) {
-        expressions.add("Equality expression: " + ctx.getText());
+        if(ctx.children.size() > 1){
+            String operand = ctx.getChild(1).getText();
+            if(operand.equals("==")){
+                expressionEvaluator.loadEqualityExpression();
+            }
+            else if(operand.equals("!=")){
+                expressionEvaluator.loadInequalityExpression();
+            }
+        }
     }
 
     @Override

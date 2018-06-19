@@ -155,6 +155,7 @@ public class MainListener extends AbstractBaseListener {
     @Override
     public void enterWhile_statement(C2asmParser.While_statementContext ctx) {
         redirectListener.getCompilationUnit().addWhileLoop();
+        redirectListener.setBaseListener(new ExpressionListener(), this);
     }
 
     @Override
