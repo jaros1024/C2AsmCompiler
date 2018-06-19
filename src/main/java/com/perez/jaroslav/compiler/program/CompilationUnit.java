@@ -7,6 +7,10 @@ import com.perez.jaroslav.compiler.components.functions.AbstractFunction;
 import com.perez.jaroslav.compiler.components.functions.ExternalFunction;
 import com.perez.jaroslav.compiler.components.functions.Function;
 import com.perez.jaroslav.compiler.components.functions.MainFunction;
+import com.perez.jaroslav.compiler.components.loops.AbstractLoop;
+import com.perez.jaroslav.compiler.components.loops.DoLoop;
+import com.perez.jaroslav.compiler.components.loops.ForLoop;
+import com.perez.jaroslav.compiler.components.loops.WhileLoop;
 import com.perez.jaroslav.compiler.components.variables.AbstractVariable;
 import com.perez.jaroslav.compiler.components.variables.ArgumentVariable;
 import com.perez.jaroslav.compiler.components.variables.Global;
@@ -33,6 +37,11 @@ public class CompilationUnit {
     private MainFunction mainFunction = new MainFunction();
     private HashMap<String, ExternalFunction> externalFunctions = new HashMap<>();
 
+    /*private Stack<WhileLoop> whileLoops = new Stack<>();
+    private Stack<ForLoop> forLoops = new Stack<>();
+    private Stack<DoLoop> doLoops = new Stack<>();*/
+    private Stack<AbstractLoop> loops = new Stack<>();
+
     public Function parsedFunction;
 
     public String generate(){
@@ -42,7 +51,6 @@ public class CompilationUnit {
         stringBuilder.append("\n");
         stringBuilder.append(".text \n");
         stringBuilder.append(".global _start \n");
-        makeExterns();
 
         makeFunctions();
         return stringBuilder.toString();
@@ -64,8 +72,8 @@ public class CompilationUnit {
         defines.put(identifier, new Define(identifier, value));
     }
 
-    public void addGlobal(String identifier, String type, String value){
-        globals.put(identifier, new Global(identifier, type, value));
+    public void addGlobal(String identifier, String type, String value, boolean pointer){
+        globals.put(identifier, new Global(identifier, type, value, pointer));
     }
 
     public void addFunction(String identifier, String type, HashMap<String, ArgumentVariable> args){
@@ -119,7 +127,7 @@ public class CompilationUnit {
         for(MethodArgument arg : arguments){
             if(arg instanceof TextArgument){
                 TextArgument textArgument = (TextArgument) arg;
-                globals.put(textArgument.label, new Global(textArgument.label, "text", textArgument.value));
+                globals.put(textArgument.label, new Global(textArgument.label, "text", textArgument.value, false));
                 String where = Registers.getRegisterForArgument(arg_count);
                 if(where == null){
                     stringBuilder.append("PUSH $" + textArgument.label + "\n");
@@ -221,7 +229,7 @@ public class CompilationUnit {
             MethodArgument methodArgument = stack.pop();
             if(methodArgument instanceof TextArgument){
                 TextArgument textArgument = (TextArgument) methodArgument;
-                globals.put(textArgument.label, new Global(textArgument.label, "text", textArgument.value));
+                globals.put(textArgument.label, new Global(textArgument.label, "text", textArgument.value, false));
                 stringBuilder.append("PUSH $" + textArgument.label + "\n");
             }
             else if(methodArgument.type == MethodArgument.TYPE_CONST){
@@ -285,13 +293,7 @@ public class CompilationUnit {
         }
     }
 
-    private void makeExterns(){
-        /*for(String s : externalFunctions.keySet()){
-            stringBuilder.append(format("extern %s \n", s));
-        }*/
-    }
-
-    private AbstractVariable getVariable(String name){
+    public AbstractVariable getVariable(String name){
         AbstractVariable variable = parsedFunction.getLocalVariable(name);
         if(variable == null){
             variable = parsedFunction.getArgument(name);
@@ -300,5 +302,68 @@ public class CompilationUnit {
             }
         }
         return variable;
+    }
+
+    public boolean inLoop(){
+        //return !whileLoops.empty() || !forLoops.empty() || !doLoops.empty();
+        return !loops.empty();
+    }
+
+    public void addWhileLoop(){
+        WhileLoop whileLoop = new WhileLoop();
+       // whileLoops.push(whileLoop);
+        loops.push(whileLoop);
+        parsedFunction.addCode(whileLoop.label + "_before:\n");
+    }
+
+    public void removeWhileLoop(){
+        //WhileLoop whileLoop = whileLoops.pop();
+        WhileLoop whileLoop = (WhileLoop)loops.pop();
+        parsedFunction.addCode(whileLoop.label + "_after:\n");
+    }
+
+    public void addForLoop(){
+        ForLoop forLoop = new ForLoop();
+        loops.push(forLoop);
+        parsedFunction.addCode(forLoop.label + "_before");
+    }
+
+    public void removeForLoop(){
+        ForLoop forLoop = (ForLoop)loops.pop();
+        parsedFunction.addCode(forLoop.label + "_after");
+    }
+
+    public void addDoLoop(){
+        DoLoop doLoop = new DoLoop();
+        loops.push(doLoop);
+        parsedFunction.addCode(doLoop.label + "_before");
+    }
+
+    public void removeDoLoop(){
+        DoLoop doLoop = (DoLoop)loops.pop();
+        parsedFunction.addCode(doLoop.label + "_after");
+    }
+
+    public void doBreak(){
+        if(!inLoop()){
+            throw new BadSyntaxException("Break not allowed when not in loop");
+        }
+        AbstractLoop loop = loops.peek();
+        parsedFunction.addCode("JMP " + loop.label + "_after\n");
+    }
+
+    public void doContinue(){
+        if(!inLoop()){
+            throw new BadSyntaxException("Continue not allowed when not in loop");
+        }
+        AbstractLoop loop = loops.peek();
+        parsedFunction.addCode("JMP " + loop.label + "_before\n");
+    }
+
+    public void addLoopCondition(String condition){
+        AbstractLoop loop = loops.peek();
+        parsedFunction.addCode(condition);
+        parsedFunction.addCode("CMP %rax,%rax\n");
+        parsedFunction.addCode("JZ " + loop.label + "_after\n");
     }
 }

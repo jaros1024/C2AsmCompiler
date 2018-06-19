@@ -104,15 +104,17 @@ public class MainListener extends AbstractBaseListener {
         String value = "0";
         if(contexts.get(0).initializer() != null){
             value = contexts.get(0).initializer().assignment_expression().getText();
+            System.out.println(value);
         }
+        boolean pointer = (contexts.get(0).variable_declarator().pointer() != null);
         CompilationUnit compilationUnit = redirectListener.getCompilationUnit();
         //if we are not in function, then make a global
         if(compilationUnit.parsedFunction == null){
-            compilationUnit.addGlobal(identifier, type, value);
+            compilationUnit.addGlobal(identifier, type, value, pointer);
         }
         //otherwise make a local variable
         else {
-            compilationUnit.parsedFunction.addLocalVariable(identifier, type, value);
+            compilationUnit.parsedFunction.addLocalVariable(identifier, type, value, pointer);
         }
     }
 
@@ -128,21 +130,61 @@ public class MainListener extends AbstractBaseListener {
             }
         }
         else if(jump.equals("break")){
-            //todo implement break
+            redirectListener.getCompilationUnit().doBreak();
         }
         else if(jump.equals("continue")){
-            //todo implement continue
+            redirectListener.getCompilationUnit().doContinue();
         }
     }
 
     @Override
     public void enterPostfix_expression(C2asmParser.Postfix_expressionContext ctx) {
+        //if this postfix expression is a method call expression
         List<C2asmParser.Argument_expression_listContext> argumentContexts =
                 ctx.argument_expression_list();
         String methodName = ctx.primary_expression().getText();
         if(argumentContexts != null && argumentContexts.size() > 0){
             redirectListener.setBaseListener(new MethodCallListener(methodName));
         }
+        if(redirectListener.getCompilationUnit().inLoop()){
+            //todo replace with expression evaluation
+            redirectListener.getCompilationUnit().addLoopCondition("MOV $" + methodName + ",%rax\n");
+        }
+    }
+
+    @Override
+    public void enterWhile_statement(C2asmParser.While_statementContext ctx) {
+        redirectListener.getCompilationUnit().addWhileLoop();
+    }
+
+    @Override
+    public void exitWhile_statement(C2asmParser.While_statementContext ctx) {
+        redirectListener.getCompilationUnit().removeWhileLoop();
+    }
+
+    @Override
+    public void enterDo_statement(C2asmParser.Do_statementContext ctx) {
+        redirectListener.getCompilationUnit().addDoLoop();
+    }
+
+    @Override
+    public void exitDo_statement(C2asmParser.Do_statementContext ctx) {
+        redirectListener.getCompilationUnit().removeDoLoop();
+    }
+
+    @Override
+    public void enterFor_statement(C2asmParser.For_statementContext ctx) {
+        redirectListener.getCompilationUnit().addForLoop();
+    }
+
+    @Override
+    public void exitFor_statement(C2asmParser.For_statementContext ctx) {
+        redirectListener.getCompilationUnit().removeForLoop();
+    }
+
+    @Override
+    public void enterExpression(C2asmParser.ExpressionContext ctx) {
+        redirectListener.setBaseListener(new ExpressionListener());
     }
 
 }

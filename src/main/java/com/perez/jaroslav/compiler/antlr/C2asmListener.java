@@ -720,6 +720,36 @@ public interface C2asmListener extends ParseTreeListener {
 	 */
 	void exitIteration_statement(C2asmParser.Iteration_statementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link C2asmParser#while_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhile_statement(C2asmParser.While_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link C2asmParser#while_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhile_statement(C2asmParser.While_statementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link C2asmParser#do_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterDo_statement(C2asmParser.Do_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link C2asmParser#do_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitDo_statement(C2asmParser.Do_statementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link C2asmParser#for_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterFor_statement(C2asmParser.For_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link C2asmParser#for_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitFor_statement(C2asmParser.For_statementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link C2asmParser#jump_statement}.
 	 * @param ctx the parse tree
 	 */

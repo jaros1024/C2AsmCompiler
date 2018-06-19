@@ -8,6 +8,7 @@ import java.util.Objects;
 public class Registers {
     private static List<String> registersForArguments = new ArrayList<>();
     private static HashMap<RegisterData, String> registersForData = new HashMap<>();
+    private static List<String> registersForOperands = new ArrayList<>();
 
     static {
         registersForArguments.add("rdi");
@@ -81,6 +82,14 @@ public class Registers {
         registersForData.put(new RegisterData("r15", 4), "r15d");
         registersForData.put(new RegisterData("r15", 2), "r15w");
         registersForData.put(new RegisterData("r15", 1), "r15b");
+
+        registersForOperands.add("r8");
+        registersForOperands.add("r9");
+        registersForOperands.add("r10");
+        registersForOperands.add("r11");
+        registersForOperands.add("r12");
+        registersForOperands.add("r13");
+        registersForOperands.add("r14");
     }
 
     public static String getRegisterForArgument(int n){
@@ -94,6 +103,10 @@ public class Registers {
         int size = TypeHelper.getTypeSize(type);
         RegisterData registerData = new RegisterData(register, size);
         return registersForData.get(registerData);
+    }
+
+    public static String getRegisterForOperand(int operand){
+        return registersForOperands.get(operand);
     }
 
     private static class RegisterData {

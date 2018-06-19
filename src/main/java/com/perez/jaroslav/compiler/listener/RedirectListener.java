@@ -739,6 +739,36 @@ public class RedirectListener extends C2asmBaseListener {
     }
 
     @Override
+    public void enterWhile_statement(C2asmParser.While_statementContext ctx) {
+        baseListener.enterWhile_statement(ctx);
+    }
+
+    @Override
+    public void exitWhile_statement(C2asmParser.While_statementContext ctx) {
+        baseListener.exitWhile_statement(ctx);
+    }
+
+    @Override
+    public void enterDo_statement(C2asmParser.Do_statementContext ctx) {
+        baseListener.enterDo_statement(ctx);
+    }
+
+    @Override
+    public void exitDo_statement(C2asmParser.Do_statementContext ctx) {
+        baseListener.exitDo_statement(ctx);
+    }
+
+    @Override
+    public void enterFor_statement(C2asmParser.For_statementContext ctx) {
+        baseListener.enterFor_statement(ctx);
+    }
+
+    @Override
+    public void exitFor_statement(C2asmParser.For_statementContext ctx) {
+        baseListener.exitFor_statement(ctx);
+    }
+
+    @Override
     public void enterJump_statement(C2asmParser.Jump_statementContext ctx) {
         baseListener.enterJump_statement(ctx);
     }

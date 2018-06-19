@@ -76,10 +76,10 @@ public class Function extends AbstractFunction {
         content.append(ret(0));
     }
 
-    public void addLocalVariable(String identifier, String type, String value){
+    public void addLocalVariable(String identifier, String type, String value, boolean pointer){
         int size = TypeHelper.getTypeSize(type);
         localVariableStackPtr += size;
-        Variable variable = new Variable(identifier, type, value, "-" + localVariableStackPtr + "(%rbp)");
+        Variable variable = new Variable(identifier, type, value, "-" + localVariableStackPtr + "(%rbp)", pointer);
         localVariables.put(identifier, variable);
     }
 

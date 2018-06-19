@@ -8,10 +8,11 @@ public class Variable extends AbstractVariable {
     public Variable() {
     }
 
-    public Variable(String name, String type, String value, String address) {
+    public Variable(String name, String type, String value, String address, boolean pointer) {
         this.name = name;
         this.type = type;
         this.value = value;
         this.address = address;
+        this.pointer = pointer;
     }
 }

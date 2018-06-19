@@ -416,10 +416,22 @@ selection_statement
 	;
 
 iteration_statement
-	: 'while' '(' expression ')' statement
-	| 'do' statement 'while' '(' expression ')' ';'
-	| 'for' '(' expression_statement expression_statement expression? ')' statement
+	: while_statement
+	| do_statement
+	| for_statement
 	;
+
+while_statement
+    : 'while' '(' expression ')' statement
+    ;
+
+do_statement
+    : 'do' statement 'while' '(' expression ')' ';'
+    ;
+
+for_statement
+    : 'for' '(' expression_statement expression_statement expression? ')' statement
+    ;
 
 jump_statement
 	: 'continue' ';'
