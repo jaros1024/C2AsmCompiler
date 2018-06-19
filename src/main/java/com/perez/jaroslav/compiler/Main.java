@@ -36,7 +36,7 @@ public class Main {
         //MyListener listener = new MyListener(stream);
         RedirectListener listener = new RedirectListener(stream);
         MainListener mainListener = new MainListener();
-        listener.setBaseListener(mainListener);
+        listener.setBaseListener(mainListener, null);
         try {
             ParseTreeWalker.DEFAULT.walk(listener, tree);
         } catch (BadSyntaxException e){

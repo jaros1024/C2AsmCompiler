@@ -123,7 +123,7 @@ public class MainListener extends AbstractBaseListener {
         String jump = ctx.getRuleContext().getChild(0).getText();
         if(jump.equals("return")){
             if(ctx.getRuleContext().getChildCount() == 3){
-                redirectListener.setBaseListener(new ReturnListener(redirectListener.getCompilationUnit().parsedFunction));
+                redirectListener.setBaseListener(new ReturnListener(redirectListener.getCompilationUnit().parsedFunction), this);
             }
             else {
                 redirectListener.getCompilationUnit().parsedFunction.functionReturn();
@@ -144,7 +144,7 @@ public class MainListener extends AbstractBaseListener {
                 ctx.argument_expression_list();
         String methodName = ctx.primary_expression().getText();
         if(argumentContexts != null && argumentContexts.size() > 0){
-            redirectListener.setBaseListener(new MethodCallListener(methodName));
+            redirectListener.setBaseListener(new MethodCallListener(methodName), this);
         }
         if(redirectListener.getCompilationUnit().inLoop()){
             //todo replace with expression evaluation
@@ -184,7 +184,7 @@ public class MainListener extends AbstractBaseListener {
 
     @Override
     public void enterExpression(C2asmParser.ExpressionContext ctx) {
-        redirectListener.setBaseListener(new ExpressionListener());
+        redirectListener.setBaseListener(new ExpressionListener(), this);
     }
 
 }

@@ -16,7 +16,7 @@ public class ReturnListener extends AbstractBaseListener {
     public void exitPrimary_expression(C2asmParser.Primary_expressionContext ctx) {
         if(waitForReturnVariable && redirectListener.getCompilationUnit().parsedFunction != null){
             function.functionReturnVariable(ctx.getText());
-            redirectListener.setBaseListener(new MainListener());
+            redirectListener.setBaseListener(new MainListener(), this);
         }
     }
 
@@ -24,7 +24,7 @@ public class ReturnListener extends AbstractBaseListener {
     public void enterConstant(C2asmParser.ConstantContext ctx) {
         if(waitForReturnVariable && redirectListener.getCompilationUnit().parsedFunction != null){
             function.functionReturnConstant(ctx.getText());
-            redirectListener.setBaseListener(new MainListener());
+            redirectListener.setBaseListener(new MainListener(), this);
         }
     }
 

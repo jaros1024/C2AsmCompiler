@@ -22,7 +22,7 @@ public class ExpressionListener extends AbstractBaseListener {
         }
         if(ctx.parent.getRuleIndex() != 48){
             redirectListener.getCompilationUnit().parsedFunction.addCode(expressionEvaluator.getExpression());
-            redirectListener.setBaseListener(new MainListener());
+            redirectListener.setBaseListener(new MainListener(), this);
             System.out.println(expressionEvaluator.getExpression());
         }
         else {
