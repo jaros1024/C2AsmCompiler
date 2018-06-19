@@ -301,4 +301,10 @@ public class CompilationUnit {
         }
         return variable;
     }
+
+    public void addCode(String string){
+        stringBuilder.append(string);
+    }
+
+
 }
