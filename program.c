@@ -20,13 +20,6 @@ int main()
 
 void blabla(int arg)
 {
-    if( 3 == 3 && 3 == 4) {
-
-        printf("arg = %d\n", arg);
-    }
-    else if ( 3==3){
-        printf("Hello, World!\n");
-    }
 	printf("arg = %d\n", arg);
 }
 

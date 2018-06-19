@@ -145,15 +145,4 @@ public class MainListener extends AbstractBaseListener {
         }
     }
 
-    @Override
-    public void enterSelection_statement(C2asmParser.Selection_statementContext ctx){
-        String selection = ctx.getRuleContext().getChild(0).getText();
-        if(selection.equals("if")){
-            redirectListener.setBaseListener(new IfListener());
-        }
-        else if(selection.equals("switch")){
-            //todo implement case
-        }
-    }
-
 }
