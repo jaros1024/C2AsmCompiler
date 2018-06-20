@@ -1,15 +1,14 @@
-#include <stdio.h>
-#define VALUE 10
-
-/* this is a block, multi-line comment
-hehe */
-int global = 5;
-int blabla;
+int blabla = 5 ;
 
 int main()
 {
-   int zmienna = -5;
-   zmienna = zmienna + 1;
+switch (blabla)
+case(2): {
+if(2){
+    blabla =2;}
+else blabla =5;
+}
+case(5): blabla=5;
+default: blabla=2;
 
-   return 0;
 }

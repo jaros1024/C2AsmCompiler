@@ -1,17 +1,14 @@
 package com.perez.jaroslav.compiler.listener.functional;
 
 import com.perez.jaroslav.compiler.antlr.C2asmParser;
-import com.perez.jaroslav.compiler.components.functions.Function;
+import com.perez.jaroslav.compiler.components.statement.SwitchStatement;
 import com.perez.jaroslav.compiler.components.variables.ArgumentVariable;
-import com.perez.jaroslav.compiler.helpers.Registers;
 import com.perez.jaroslav.compiler.listener.base.AbstractBaseListener;
 import com.perez.jaroslav.compiler.program.CompilationUnit;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import static com.perez.jaroslav.compiler.helpers.Registers.getRegisterForArgument;
 
 public class MainListener extends AbstractBaseListener {
 
@@ -190,13 +187,19 @@ public class MainListener extends AbstractBaseListener {
 
     @Override
     public void enterElse_statement(C2asmParser.Else_statementContext ctx) {
-        redirectListener.getCompilationUnit().addIfSkipLabel();
+        redirectListener.getCompilationUnit().addIfLabel();
     }
-
     @Override
     public void exitStatement(C2asmParser.StatementContext ctx) {
         //gdy rodzic to selection statement i nie ma else
-        if( ctx.parent.getRuleIndex() == 69 && ctx.parent.getChildCount() == 5 )
-        redirectListener.getCompilationUnit().addIfSkipLabel();
+        if(ctx.parent instanceof C2asmParser.Selection_statementContext && ctx.parent.getChildCount() == 5
+                && ctx.parent.getChild(0).getText().equals("if")){
+            redirectListener.getCompilationUnit().addIfLabel();
+        }
+        else if(ctx.parent instanceof C2asmParser.Labeled_statementContext && ctx.parent.getChild(0).getText().equals("case")){
+            redirectListener.getCompilationUnit().addIfLabel();
+        }else if(ctx.parent instanceof C2asmParser.Labeled_statementContext && ctx.parent.getChild(0).getText().equals("default")){
+          //  redirectListener.getCo
+        }
     }
 }

@@ -4,4 +4,6 @@ import com.perez.jaroslav.compiler.util.RandomString;
 
 public abstract class SelectionStatement {
     public String label = new RandomString(8).nextString();
+    public abstract String addJumpAfterExpression();
+    public abstract String addAfterLabel();
 }
