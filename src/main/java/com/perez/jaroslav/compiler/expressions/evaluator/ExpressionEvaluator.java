@@ -113,15 +113,48 @@ public class ExpressionEvaluator {
     }
 
     public void loadLessThanExpression(){
-        //todo less than expression
+        if(copyValues){
+            String first = releaseRegister();
+            String second = getLatestRegister();
+            String label = "cmp_" + randomString.nextString();
+            content.append("CMP %" + first + ",%" + second + "\n");
+            content.append("JL " + label + "\n");
+            content.append("XOR %" + second + ",%" + second + "\n");
+            content.append("JMP " + label + "_after\n");
+            content.append(label + ":\n");
+            content.append("MOV $1,%" + second + "\n");
+            content.append(label + "_after:\n");
+        }
     }
 
     public void loadBiggerEqualExpression(){
-        //todo bigger or equal expression
+        if(copyValues){
+            String first = releaseRegister();
+            String second = getLatestRegister();
+            String label = "cmp_" + randomString.nextString();
+            content.append("CMP %" + first + ",%" + second + "\n");
+            content.append("JGE " + label + "\n");
+            content.append("XOR %" + second + ",%" + second + "\n");
+            content.append("JMP " + label + "_after\n");
+            content.append(label + ":\n");
+            content.append("MOV $1,%" + second + "\n");
+            content.append(label + "_after:\n");
+        }
     }
 
     public void loadLessEqualExpression(){
-        //todo less or equal expression
+        if(copyValues){
+            String first = releaseRegister();
+            String second = getLatestRegister();
+            String label = "cmp_" + randomString.nextString();
+            content.append("CMP %" + first + ",%" + second + "\n");
+            content.append("JLE " + label + "\n");
+            content.append("XOR %" + second + ",%" + second + "\n");
+            content.append("JMP " + label + "_after\n");
+            content.append(label + ":\n");
+            content.append("MOV $1,%" + second + "\n");
+            content.append(label + "_after:\n");
+        }
     }
 
     public void loadNotExpression(){

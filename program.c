@@ -8,9 +8,9 @@ int blabla;
 
 int main()
 {
-   int zmienna = 20;
+   int zmienna = 10;
 
-   while(zmienna > 10){
+   while(zmienna >= 5){
         printf("Test zmienna = %d\n", zmienna);
         zmienna = zmienna - 1;
    }
