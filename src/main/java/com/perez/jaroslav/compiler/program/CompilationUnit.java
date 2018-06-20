@@ -215,6 +215,10 @@ public class CompilationUnit {
             stringBuilder.append("XOR %eax,%eax\n");
         }
         stringBuilder.append(format("CALL %s\n", function.name));
+        if(!function.type.equals("void")){
+            //todo replace r8 with actual register
+            stringBuilder.append("MOV %rax,%r8\n");
+        }
         parsedFunction.addCode(stringBuilder.toString());
     }
 
@@ -267,6 +271,10 @@ public class CompilationUnit {
             }
         }
         stringBuilder.append(format("CALL %s\n", function.name));
+        if(!function.type.equals("void")){
+            //todo replace r8 with actual register
+            stringBuilder.append("MOV %rax,%r8\n");
+        }
         parsedFunction.addCode(stringBuilder.toString());
     }
 
@@ -319,6 +327,7 @@ public class CompilationUnit {
     public void removeWhileLoop(){
         //WhileLoop whileLoop = whileLoops.pop();
         WhileLoop whileLoop = (WhileLoop)loops.pop();
+        parsedFunction.addCode("JMP " + whileLoop.label + "_before\n");
         parsedFunction.addCode(whileLoop.label + "_after:\n");
     }
 

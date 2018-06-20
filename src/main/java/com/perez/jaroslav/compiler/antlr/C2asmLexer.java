@@ -1,4 +1,5 @@
-// Generated from C:/Users/Lenovo/git/C2AsmCompiler\C2asm.g4 by ANTLR 4.7
+// Generated from C:/Users/Jarek/IdeaProjects/C2AsmCompiler\C2asm.g4 by ANTLR 4.7
+
 package com.perez.jaroslav.compiler.antlr;
 
 import org.antlr.v4.runtime.Lexer;

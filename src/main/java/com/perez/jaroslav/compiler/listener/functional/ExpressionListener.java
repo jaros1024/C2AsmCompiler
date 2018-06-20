@@ -1,6 +1,7 @@
 package com.perez.jaroslav.compiler.listener.functional;
 
 import com.perez.jaroslav.compiler.antlr.C2asmParser;
+import com.perez.jaroslav.compiler.components.callarguments.MethodArgument;
 import com.perez.jaroslav.compiler.components.statement.IfStatement;
 import com.perez.jaroslav.compiler.components.statement.SwitchStatement;
 import com.perez.jaroslav.compiler.expressions.PrimaryExpression;
@@ -15,6 +16,7 @@ public class ExpressionListener extends AbstractBaseListener {
     private List<String> expressions = new LinkedList<>();
     private ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
     private boolean shouldReturn = true;
+    private boolean callingMethodWithoutArgs = false;
 
     //marks if we are doing addition/subtraction... assignment, so we will need to copy lvalue
     private boolean operationAssignment = false;
@@ -100,6 +102,9 @@ public class ExpressionListener extends AbstractBaseListener {
             else if(operator.equals("!")){
                 expressionEvaluator.copyAddress = true;
             }
+            else if(operator.equals("&")){
+                expressionEvaluator.copyAddress = true;
+            }
         }
     }
 
@@ -120,12 +125,16 @@ public class ExpressionListener extends AbstractBaseListener {
                 expressionEvaluator.loadNotExpression();
                 expressionEvaluator.copyAddress = false;
             }
+            else if(operator.equals("&")){
+                expressionEvaluator.loadAddressExpression();
+                expressionEvaluator.copyAddress = false;
+            }
         }
     }
 
     @Override
     public void enterPostfix_expression(C2asmParser.Postfix_expressionContext ctx) {
-        //CASE 1: method call
+        //CASE 1: method with arguments call
         if(ctx.children.size() == 4){
             List<C2asmParser.Argument_expression_listContext> argumentContexts =
                     ctx.argument_expression_list();
@@ -135,7 +144,15 @@ public class ExpressionListener extends AbstractBaseListener {
                 redirectListener.setBaseListener(new MethodCallListener(methodName), this);
             }
         }
-        //CASE 2: postfix expression
+        //CASE 2: method without arguments call
+        else if(ctx.children.size() == 3 && ctx.getChild(1).getText().equals("(") && ctx.getChild(2).getText().equals(")")){
+            String methodName = ctx.primary_expression().getText();
+            shouldReturn = false;
+            List<MethodArgument> arguments = new LinkedList<>();
+            redirectListener.getCompilationUnit().callFunction(methodName, arguments);
+            callingMethodWithoutArgs = true;
+        }
+        //CASE 3: postfix expression
         else if(ctx.children.size() == 2){
             String operator = ctx.children.get(1).getText();
             if(operator.equals("++")){
@@ -178,6 +195,9 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void exitPrimary_expression(C2asmParser.Primary_expressionContext ctx) {
+        if(callingMethodWithoutArgs){
+            return;
+        }
         C2asmParser.ConstantContext constantContext = ctx.constant();
         if(ctx.expression() == null){
             PrimaryExpression primaryExpression = new PrimaryExpression();
@@ -203,10 +223,7 @@ public class ExpressionListener extends AbstractBaseListener {
     public void enterAssignment_expression(C2asmParser.Assignment_expressionContext ctx) {
         if(ctx.children.size() > 1){
             String operator = ctx.assignment_operator().getText();
-            if(operator.equals("==")){
-                expressionEvaluator.loadAssignmentExpression();
-            }
-            else if(operator.equals("+=")){
+            if(operator.equals("+=")){
                 expressionEvaluator.copyAddress = true;
                 operationAssignment = true;
             }
@@ -233,7 +250,7 @@ public class ExpressionListener extends AbstractBaseListener {
     public void exitAssignment_expression(C2asmParser.Assignment_expressionContext ctx) {
         if(ctx.children.size() > 1){
             String operator = ctx.assignment_operator().getText();
-            if(operator.equals("==")){
+            if(operator.equals("=")){
                 expressionEvaluator.loadAssignmentExpression();
             }
             else if(operator.equals("+=")){

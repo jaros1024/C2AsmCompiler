@@ -310,6 +310,11 @@ public class ExpressionEvaluator {
         content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
     }
 
+    public void loadAddressExpression(){
+        String address = releaseRegister();
+        content.append("MOV %" + address + ",%" + copyRegister + "\n");
+    }
+
     private String getNextRegister(){
         String register = Registers.getRegisterForOperand(primaryExprCounter);
         usedRegisters.push(register);

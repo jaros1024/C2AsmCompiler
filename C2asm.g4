@@ -248,7 +248,7 @@ initializer_list
 // E x p r e s s i o n s
 
 argument_expression_list
-	:   assignment_expression (',' assignment_expression)*
+	:   assignment_expression+ (',' assignment_expression)*
 	;
 
 additive_expression
