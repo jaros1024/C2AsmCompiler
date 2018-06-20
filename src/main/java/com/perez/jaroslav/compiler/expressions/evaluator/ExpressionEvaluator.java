@@ -26,6 +26,7 @@ public class ExpressionEvaluator {
         return content.toString();
     }
 
+    //used when loading variable
     public void loadPrimaryExpression(String operand, String type){
         if(copyExpValue){
             String baseRegister = getNextRegister();
@@ -48,12 +49,7 @@ public class ExpressionEvaluator {
         }
     }
 
-    private void loadOperandAddress(String operand){
-        String register = getNextRegister();
-        content.append("XOR %" + register + ",%" + register + "\n");
-        content.append("LEA " + operand + ",%" + register + "\n");
-    }
-
+    //used when loading const
     public void loadPrimaryExpression(String operand){
         if(copyExpValue){
             String register = getNextRegister();
@@ -63,6 +59,12 @@ public class ExpressionEvaluator {
         else {
             assignmentTarget = operand;
         }
+    }
+
+    private void loadOperandAddress(String operand){
+        String register = getNextRegister();
+        content.append("XOR %" + register + ",%" + register + "\n");
+        content.append("LEA " + operand + ",%" + register + "\n");
     }
 
     public void loadAdditiveExpression(){
@@ -263,23 +265,49 @@ public class ExpressionEvaluator {
     }
 
     public void loadAddAssignmentExpression(){
-
+        String operand = releaseRegister();
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("ADD %" + operand + ",%" + copyRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
     }
 
     public void loadSubAssignmentExpression(){
-
+        String operand = releaseRegister();
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("SUB %" + operand + ",%" + copyRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
     }
 
     public void loadMulAssignmentExpression(){
-
+        String operand = releaseRegister();
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("IMUL %" + operand + ",%" + copyRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
     }
 
     public void loadDivAssignmentExpression(){
-
+        String operand = releaseRegister();
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("MOV %" + copyRegister + ",%rax\n");
+        content.append("XOR %rdx,%rdx\n");
+        content.append("IDIV %" + operand + "\n");
+        content.append("MOV %rax,%" + copyRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
     }
 
     public void loadModAssignmentExpression(){
-
+        String operand = releaseRegister();
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("MOV %" + copyRegister + ",%rax\n");
+        content.append("XOR %rdx,%rdx\n");
+        content.append("IDIV %" + operand + "\n");
+        content.append("MOV %rdx,%" + copyRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
     }
 
     private String getNextRegister(){

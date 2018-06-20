@@ -8,9 +8,9 @@ int blabla;
 
 int main()
 {
-   int zmienna = 0;
+   int zmienna = 20;
 
-   zmienna++;
+   zmienna %= 3;
 
    printf("Test zmienna = %d\n", zmienna);
 

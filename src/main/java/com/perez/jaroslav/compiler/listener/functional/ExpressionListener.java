@@ -14,6 +14,9 @@ public class ExpressionListener extends AbstractBaseListener {
     private ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
     private boolean shouldReturn = true;
 
+    //marks if we are doing addition/subtraction... assignment, so we will need to copy lvalue
+    private boolean operationAssignment = false;
+
     @Override
     public void exitExpression(C2asmParser.ExpressionContext ctx) {
         if(!(ctx.parent instanceof C2asmParser.Primary_expressionContext)){
@@ -166,7 +169,6 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void exitPrimary_expression(C2asmParser.Primary_expressionContext ctx) {
-        System.out.println("Primary expression ID is: " + ctx.getRuleIndex());
         C2asmParser.ConstantContext constantContext = ctx.constant();
         if(ctx.expression() == null){
             PrimaryExpression primaryExpression = new PrimaryExpression();
@@ -190,13 +192,66 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void enterAssignment_expression(C2asmParser.Assignment_expressionContext ctx) {
-        //baseListener.enterAssignment_expression(ctx);
+        if(ctx.children.size() > 1){
+            String operator = ctx.assignment_operator().getText();
+            if(operator.equals("==")){
+                expressionEvaluator.loadAssignmentExpression();
+            }
+            else if(operator.equals("+=")){
+                expressionEvaluator.copyAddress = true;
+                operationAssignment = true;
+            }
+            else if(operator.equals("-=")){
+                expressionEvaluator.copyAddress = true;
+                operationAssignment = true;
+            }
+            else if(operator.equals("*=")){
+                expressionEvaluator.copyAddress = true;
+                operationAssignment = true;
+            }
+            else if(operator.equals("/=")){
+                expressionEvaluator.copyAddress = true;
+                operationAssignment = true;
+            }
+            else if(operator.equals("%=")){
+                expressionEvaluator.copyAddress = true;
+                operationAssignment = true;
+            }
+        }
     }
 
     @Override
     public void exitAssignment_expression(C2asmParser.Assignment_expressionContext ctx) {
         if(ctx.children.size() > 1){
-            expressionEvaluator.loadAssignmentExpression();
+            String operator = ctx.assignment_operator().getText();
+            if(operator.equals("==")){
+                expressionEvaluator.loadAssignmentExpression();
+            }
+            else if(operator.equals("+=")){
+                expressionEvaluator.loadAddAssignmentExpression();
+                expressionEvaluator.copyAddress = false;
+                operationAssignment = false;
+            }
+            else if(operator.equals("-=")){
+                expressionEvaluator.loadSubAssignmentExpression();
+                expressionEvaluator.copyAddress = false;
+                operationAssignment = false;
+            }
+            else if(operator.equals("*=")){
+                expressionEvaluator.loadMulAssignmentExpression();
+                expressionEvaluator.copyAddress = false;
+                operationAssignment = false;
+            }
+            else if(operator.equals("/=")){
+                expressionEvaluator.loadDivAssignmentExpression();
+                expressionEvaluator.copyAddress = false;
+                operationAssignment = false;
+            }
+            else if(operator.equals("%=")){
+                expressionEvaluator.loadModAssignmentExpression();
+                expressionEvaluator.copyAddress = false;
+                operationAssignment = false;
+            }
             shouldReturn = false;
         }
     }
@@ -320,12 +375,16 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void enterLvalue(C2asmParser.LvalueContext ctx){
-        expressionEvaluator.copyExpValue = false;
+        if(!operationAssignment){
+            expressionEvaluator.copyExpValue = false;
+        }
     }
 
     @Override
     public void exitLvalue(C2asmParser.LvalueContext ctx) {
-        System.out.println("Lvalue id = " + ctx.getRuleIndex());
         expressionEvaluator.copyExpValue = true;
+        if(expressionEvaluator.copyAddress){
+            expressionEvaluator.copyAddress = false;
+        }
     }
 }

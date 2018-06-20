@@ -101,7 +101,6 @@ public class MainListener extends AbstractBaseListener {
         String value = "0";
         if(contexts.get(0).initializer() != null){
             value = contexts.get(0).initializer().assignment_expression().getText();
-            System.out.println(value);
         }
         boolean pointer = (contexts.get(0).variable_declarator().pointer() != null);
         CompilationUnit compilationUnit = redirectListener.getCompilationUnit();
