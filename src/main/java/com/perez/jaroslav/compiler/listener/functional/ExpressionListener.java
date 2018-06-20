@@ -36,6 +36,10 @@ public class ExpressionListener extends AbstractBaseListener {
         else {
             expressionEvaluator.loadInnerExpression();
         }
+        //dodanie jumpa do ifa gdy jest to wyrazenie ewaluacyjne ifa
+        if(ctx.parent.getRuleIndex() == 69 && ctx.parent.getChild(0).getText().equals("if")){
+            redirectListener.getCompilationUnit().addIfJump();
+        }
     }
 
     @Override

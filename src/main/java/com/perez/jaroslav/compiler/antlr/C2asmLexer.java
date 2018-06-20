@@ -1,5 +1,4 @@
-// Generated from C:/Users/Jarek/IdeaProjects/C2AsmCompiler\C2asm.g4 by ANTLR 4.7
-
+// Generated from C:/Users/Lenovo/git/C2AsmCompiler\C2asm.g4 by ANTLR 4.7
 package com.perez.jaroslav.compiler.antlr;
 
 import org.antlr.v4.runtime.Lexer;
@@ -66,7 +65,7 @@ public class C2asmLexer extends Lexer {
 		"'++'", "'--'", "'sizeof'", "'.'", "'->'", "'&'", "'~'", "'!'", "'*='", 
 		"'/='", "'%='", "'+='", "'-='", "'<<='", "'>>='", "'&='", "'^='", "'|='", 
 		"'?'", "'||'", "'&&'", "'|'", "'^'", "'=='", "'!='", "'<='", "'>='", "'<<'", 
-		"'>>'", "'case'", "'default'", "'if'", "'else'", "'switch'", "'while'", 
+		"'>>'", "'case'", "'default'", "'if'", "'switch'", "'else'", "'while'", 
 		"'do'", "'for'", "'continue'", "'break'", "'return'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
@@ -165,7 +164,7 @@ public class C2asmLexer extends Lexer {
 		"\3\64\3\64\3\65\3\65\3\65\3\66\3\66\3\66\3\66\3\67\3\67\3\67\3\67\38\3"+
 		"8\38\39\39\39\3:\3:\3:\3;\3;\3<\3<\3<\3=\3=\3=\3>\3>\3?\3?\3@\3@\3@\3"+
 		"A\3A\3A\3B\3B\3B\3C\3C\3C\3D\3D\3D\3E\3E\3E\3F\3F\3F\3F\3F\3G\3G\3G\3"+
-		"G\3G\3G\3G\3G\3H\3H\3H\3I\3I\3I\3I\3I\3J\3J\3J\3J\3J\3J\3J\3K\3K\3K\3"+
+		"G\3G\3G\3G\3G\3H\3H\3H\3I\3I\3I\3I\3I\3I\3I\3J\3J\3J\3J\3J\3K\3K\3K\3"+
 		"K\3K\3K\3L\3L\3L\3M\3M\3M\3M\3N\3N\3N\3N\3N\3N\3N\3N\3N\3O\3O\3O\3O\3"+
 		"O\3O\3P\3P\3P\3P\3P\3P\3P\3Q\3Q\3Q\7Q\u0207\nQ\fQ\16Q\u020a\13Q\3R\3R"+
 		"\3S\3S\3S\5S\u0211\nS\3S\3S\3T\3T\3T\7T\u0218\nT\fT\16T\u021b\13T\3T\3"+
@@ -223,7 +222,7 @@ public class C2asmLexer extends Lexer {
 		"\u01b0\3\2\2\2\177\u01b2\3\2\2\2\u0081\u01b5\3\2\2\2\u0083\u01b8\3\2\2"+
 		"\2\u0085\u01bb\3\2\2\2\u0087\u01be\3\2\2\2\u0089\u01c1\3\2\2\2\u008b\u01c4"+
 		"\3\2\2\2\u008d\u01c9\3\2\2\2\u008f\u01d1\3\2\2\2\u0091\u01d4\3\2\2\2\u0093"+
-		"\u01d9\3\2\2\2\u0095\u01e0\3\2\2\2\u0097\u01e6\3\2\2\2\u0099\u01e9\3\2"+
+		"\u01db\3\2\2\2\u0095\u01e0\3\2\2\2\u0097\u01e6\3\2\2\2\u0099\u01e9\3\2"+
 		"\2\2\u009b\u01ed\3\2\2\2\u009d\u01f6\3\2\2\2\u009f\u01fc\3\2\2\2\u00a1"+
 		"\u0203\3\2\2\2\u00a3\u020b\3\2\2\2\u00a5\u020d\3\2\2\2\u00a7\u0214\3\2"+
 		"\2\2\u00a9\u021e\3\2\2\2\u00ab\u0230\3\2\2\2\u00ad\u0235\3\2\2\2\u00af"+
@@ -300,9 +299,9 @@ public class C2asmLexer extends Lexer {
 		"\7f\2\2\u01ca\u01cb\7g\2\2\u01cb\u01cc\7h\2\2\u01cc\u01cd\7c\2\2\u01cd"+
 		"\u01ce\7w\2\2\u01ce\u01cf\7n\2\2\u01cf\u01d0\7v\2\2\u01d0\u008e\3\2\2"+
 		"\2\u01d1\u01d2\7k\2\2\u01d2\u01d3\7h\2\2\u01d3\u0090\3\2\2\2\u01d4\u01d5"+
-		"\7g\2\2\u01d5\u01d6\7n\2\2\u01d6\u01d7\7u\2\2\u01d7\u01d8\7g\2\2\u01d8"+
-		"\u0092\3\2\2\2\u01d9\u01da\7u\2\2\u01da\u01db\7y\2\2\u01db\u01dc\7k\2"+
-		"\2\u01dc\u01dd\7v\2\2\u01dd\u01de\7e\2\2\u01de\u01df\7j\2\2\u01df\u0094"+
+		"\7u\2\2\u01d5\u01d6\7y\2\2\u01d6\u01d7\7k\2\2\u01d7\u01d8\7v\2\2\u01d8"+
+		"\u01d9\7e\2\2\u01d9\u01da\7j\2\2\u01da\u0092\3\2\2\2\u01db\u01dc\7g\2"+
+		"\2\u01dc\u01dd\7n\2\2\u01dd\u01de\7u\2\2\u01de\u01df\7g\2\2\u01df\u0094"+
 		"\3\2\2\2\u01e0\u01e1\7y\2\2\u01e1\u01e2\7j\2\2\u01e2\u01e3\7k\2\2\u01e3"+
 		"\u01e4\7n\2\2\u01e4\u01e5\7g\2\2\u01e5\u0096\3\2\2\2\u01e6\u01e7\7f\2"+
 		"\2\u01e7\u01e8\7q\2\2\u01e8\u0098\3\2\2\2\u01e9\u01ea\7h\2\2\u01ea\u01eb"+

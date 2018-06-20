@@ -11,6 +11,8 @@ import com.perez.jaroslav.compiler.components.loops.AbstractLoop;
 import com.perez.jaroslav.compiler.components.loops.DoLoop;
 import com.perez.jaroslav.compiler.components.loops.ForLoop;
 import com.perez.jaroslav.compiler.components.loops.WhileLoop;
+import com.perez.jaroslav.compiler.components.statement.IfStatement;
+import com.perez.jaroslav.compiler.components.statement.SelectionStatement;
 import com.perez.jaroslav.compiler.components.variables.AbstractVariable;
 import com.perez.jaroslav.compiler.components.variables.ArgumentVariable;
 import com.perez.jaroslav.compiler.components.variables.Global;
@@ -21,10 +23,7 @@ import com.perez.jaroslav.compiler.helpers.StackHelper;
 import com.perez.jaroslav.compiler.helpers.SystemFunctions;
 import com.perez.jaroslav.compiler.helpers.TypeHelper;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -41,6 +40,7 @@ public class CompilationUnit {
     private Stack<ForLoop> forLoops = new Stack<>();
     private Stack<DoLoop> doLoops = new Stack<>();*/
     private Stack<AbstractLoop> loops = new Stack<>();
+    private LinkedList<SelectionStatement> selectionStatement = new LinkedList<>();
 
     public Function parsedFunction;
 
@@ -369,5 +369,15 @@ public class CompilationUnit {
     public void addLoopJumpToBegin(){
         AbstractLoop loop = loops.peek();
         parsedFunction.addCode("JMP " + loop.label + "_before\n");
+    }
+
+    public void addIfJump(){
+        IfStatement ifStatement = new IfStatement();
+        selectionStatement.add(ifStatement);
+        parsedFunction.addCode(ifStatement.addJumpIfFalse());
+    }
+
+    public void addIfSkipLabel(){
+        parsedFunction.addCode( selectionStatement.removeFirst().label + "_else:\n");
     }
 }

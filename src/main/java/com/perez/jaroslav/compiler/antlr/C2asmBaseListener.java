@@ -1,5 +1,4 @@
-// Generated from C:/Users/Jarek/IdeaProjects/C2AsmCompiler\C2asm.g4 by ANTLR 4.7
-
+// Generated from C:/Users/Lenovo/git/C2AsmCompiler\C2asm.g4 by ANTLR 4.7
 package com.perez.jaroslav.compiler.antlr;
 
 
@@ -853,6 +852,18 @@ public class C2asmBaseListener implements C2asmListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSelection_statement(C2asmParser.Selection_statementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterElse_statement(C2asmParser.Else_statementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitElse_statement(C2asmParser.Else_statementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
