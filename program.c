@@ -8,12 +8,11 @@ int blabla;
 
 int main()
 {
-   int zmienna = 0;
 
-   while(!zmienna){
-        printf("Test zmienna = %d\n", zmienna);
-        zmienna = zmienna + 1;
-   }
-
-   return 0;
+switch(blabla)
+case(1):
+{
+blabla=2;
+}
+   return 1;
 }

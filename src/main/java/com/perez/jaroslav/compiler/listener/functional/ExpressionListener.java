@@ -5,12 +5,9 @@ import com.perez.jaroslav.compiler.components.statement.IfStatement;
 import com.perez.jaroslav.compiler.components.statement.SwitchStatement;
 import com.perez.jaroslav.compiler.expressions.PrimaryExpression;
 import com.perez.jaroslav.compiler.expressions.evaluator.ExpressionEvaluator;
-import com.perez.jaroslav.compiler.helpers.TypeHelper;
 import com.perez.jaroslav.compiler.helpers.VariableHelper;
 import com.perez.jaroslav.compiler.listener.base.AbstractBaseListener;
-import org.antlr.v4.runtime.tree.ParseTree;
 
-import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,22 +22,22 @@ public class ExpressionListener extends AbstractBaseListener {
         for(String str : expressions){
             //System.out.println(str);
         }
-        //todo check with instanceof
-        if(ctx.parent.getRuleIndex() != 48){
+
+        if(!(ctx.parent instanceof C2asmParser.Primary_expressionContext)){
             if(shouldReturn){
                 expressionEvaluator.loadInnerExpression();
             }
             System.out.println("Expression parent is " + ctx.parent.getRuleIndex() + " so I will return");
             redirectListener.getCompilationUnit().parsedFunction.addCode(expressionEvaluator.getExpression());
-            redirectListener.setBaseListener(new MainListener(), this);
+            if(ctx.parent instanceof C2asmParser.Selection_statementContext && ctx.parent.getChild(0).getText().equals("if")){
+                redirectListener.getCompilationUnit().addStatementJump(new IfStatement());
+            }
+            //System.out.println("WRACAM "+ ctx.parent.getText());
+            redirectListener.setBaseListener(redirectListener.previousListener, this);
             System.out.println(expressionEvaluator.getExpression());
         }
         else {
             expressionEvaluator.loadInnerExpression();
-        }
-        //dodanie jumpa do ifa gdy jest to wyrazenie ewaluacyjne ifa
-        if(ctx.parent instanceof C2asmParser.Selection_statementContext && ctx.parent.getChild(0).getText().equals("if")){
-            redirectListener.getCompilationUnit().addIfJump(new IfStatement());
         }
     }
 
@@ -143,18 +140,6 @@ public class ExpressionListener extends AbstractBaseListener {
     @Override
     public void exitPostfix_expression(C2asmParser.Postfix_expressionContext ctx) {
         expressions.add("Postfix expression: " + ctx.getText());
-    }
-
-    @Override
-    public void enterPrimary_expression(C2asmParser.Primary_expressionContext ctx) {
-        //baseListener.enterPrimary_expression(ctx);
-    }
-
-    @Override
-    public void exitConstant_expression(C2asmParser.Constant_expressionContext ctx) {
-        if (ctx.parent instanceof  C2asmParser.Labeled_statementContext && ctx.parent.getChild(0).getText().equals("case")) {
-            redirectListener.getCompilationUnit().addIfJump(new SwitchStatement());
-        }
     }
 
     @Override
