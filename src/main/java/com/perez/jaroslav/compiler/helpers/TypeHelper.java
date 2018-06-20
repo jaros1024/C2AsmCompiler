@@ -16,6 +16,7 @@ public class TypeHelper {
         typeSizes.put("int", 4);
         typeSizes.put("char", 1);
         typeSizes.put("void", 0);
+        typeSizes.put("long", 8);
 
         moves.put("int", "movl");
         moves.put("long", "movq");
