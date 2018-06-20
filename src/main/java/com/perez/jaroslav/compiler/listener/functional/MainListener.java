@@ -188,4 +188,15 @@ public class MainListener extends AbstractBaseListener {
         redirectListener.setBaseListener(new ExpressionListener(), this);
     }
 
+    @Override
+    public void enterElse_statement(C2asmParser.Else_statementContext ctx) {
+        redirectListener.getCompilationUnit().addIfSkipLabel();
+    }
+
+    @Override
+    public void exitStatement(C2asmParser.StatementContext ctx) {
+        //gdy rodzic to selection statement i nie ma else
+        if( ctx.parent.getRuleIndex() == 69 && ctx.parent.getChildCount() == 5 )
+        redirectListener.getCompilationUnit().addIfSkipLabel();
+    }
 }

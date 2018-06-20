@@ -1,5 +1,4 @@
-// Generated from C:/Users/Jarek/IdeaProjects/C2AsmCompiler\C2asm.g4 by ANTLR 4.7
-
+// Generated from C:/Users/Lenovo/git/C2AsmCompiler\C2asm.g4 by ANTLR 4.7
 package com.perez.jaroslav.compiler.antlr;
 
 import org.antlr.v4.runtime.tree.ParseTreeListener;
@@ -709,6 +708,16 @@ public interface C2asmListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSelection_statement(C2asmParser.Selection_statementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link C2asmParser#else_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterElse_statement(C2asmParser.Else_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link C2asmParser#else_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitElse_statement(C2asmParser.Else_statementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link C2asmParser#iteration_statement}.
 	 * @param ctx the parse tree

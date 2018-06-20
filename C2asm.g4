@@ -411,9 +411,13 @@ expression_statement
 	;
 
 selection_statement
-	: 'if' '(' expression ')' statement (:'else' statement)?
+	: 'if' '(' expression ')' statement (:else_statement statement)?
 	| 'switch' '(' expression ')' statement
 	;
+
+else_statement
+    : 'else'
+    ;
 
 iteration_statement
 	: while_statement

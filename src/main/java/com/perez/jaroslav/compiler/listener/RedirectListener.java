@@ -799,4 +799,14 @@ public class RedirectListener extends C2asmBaseListener {
     public void visitErrorNode(ErrorNode node) {
         baseListener.visitErrorNode(node);
     }
+
+    @Override
+    public void enterElse_statement(C2asmParser.Else_statementContext ctx) {
+        baseListener.enterElse_statement(ctx);
+    }
+
+    @Override
+    public void exitElse_statement(C2asmParser.Else_statementContext ctx) {
+        baseListener.exitElse_statement(ctx);
+    }
 }
