@@ -334,23 +334,23 @@ public class CompilationUnit {
     public void addForLoop(){
         ForLoop forLoop = new ForLoop();
         loops.push(forLoop);
-        parsedFunction.addCode(forLoop.label + "_before");
+        parsedFunction.addCode(forLoop.label + "_before\n");
     }
 
     public void removeForLoop(){
         ForLoop forLoop = (ForLoop)loops.pop();
-        parsedFunction.addCode(forLoop.label + "_after");
+        parsedFunction.addCode(forLoop.label + "_after\n");
     }
 
     public void addDoLoop(){
         DoLoop doLoop = new DoLoop();
         loops.push(doLoop);
-        parsedFunction.addCode(doLoop.label + "_before");
+        parsedFunction.addCode(doLoop.label + "_before\n");
     }
 
     public void removeDoLoop(){
         DoLoop doLoop = (DoLoop)loops.pop();
-        parsedFunction.addCode(doLoop.label + "_after");
+        parsedFunction.addCode(doLoop.label + "_after\n");
     }
 
     public void doBreak(){
@@ -380,12 +380,12 @@ public class CompilationUnit {
         parsedFunction.addCode("JMP " + loop.label + "_before\n");
     }
 
-    public void addIfJump(SelectionStatement selection) {
+    public void addStatementJump(SelectionStatement selection) {
         selectionStatement.push(selection);
         parsedFunction.addCode(selection.addJumpAfterExpression());
     }
 
-    public void addIfLabel(){
+    public void addStatementLabel(){
         parsedFunction.addCode( selectionStatement.pop().addAfterLabel());
     }
 }
