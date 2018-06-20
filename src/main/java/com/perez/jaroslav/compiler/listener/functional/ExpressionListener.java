@@ -1,6 +1,8 @@
 package com.perez.jaroslav.compiler.listener.functional;
 
 import com.perez.jaroslav.compiler.antlr.C2asmParser;
+import com.perez.jaroslav.compiler.components.statement.IfStatement;
+import com.perez.jaroslav.compiler.components.statement.SwitchStatement;
 import com.perez.jaroslav.compiler.expressions.PrimaryExpression;
 import com.perez.jaroslav.compiler.expressions.evaluator.ExpressionEvaluator;
 import com.perez.jaroslav.compiler.helpers.VariableHelper;
@@ -30,9 +32,8 @@ public class ExpressionListener extends AbstractBaseListener {
             expressionEvaluator.loadInnerExpression();
         }
         //dodanie jumpa do ifa gdy jest to wyrazenie ewaluacyjne ifa
-        //todo check with instanceof
-        if(ctx.parent.getRuleIndex() == 69 && ctx.parent.getChild(0).getText().equals("if")){
-            redirectListener.getCompilationUnit().addIfJump();
+        if(ctx.parent instanceof C2asmParser.Selection_statementContext && ctx.parent.getChild(0).getText().equals("if")){
+            redirectListener.getCompilationUnit().addIfJump(new IfStatement());
         }
     }
 
@@ -160,11 +161,19 @@ public class ExpressionListener extends AbstractBaseListener {
                 expressionEvaluator.copyAddress = false;
             }
         }
+
     }
 
     @Override
     public void enterPrimary_expression(C2asmParser.Primary_expressionContext ctx) {
         //baseListener.enterPrimary_expression(ctx);
+    }
+
+    @Override
+    public void exitConstant_expression(C2asmParser.Constant_expressionContext ctx) {
+        if (ctx.parent instanceof  C2asmParser.Labeled_statementContext && ctx.parent.getChild(0).getText().equals("case")) {
+            redirectListener.getCompilationUnit().addIfJump(new SwitchStatement());
+        }
     }
 
     @Override

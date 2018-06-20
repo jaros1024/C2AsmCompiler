@@ -2,6 +2,7 @@ package com.perez.jaroslav.compiler.listener.functional;
 
 import com.perez.jaroslav.compiler.antlr.C2asmLexer;
 import com.perez.jaroslav.compiler.antlr.C2asmParser;
+import com.perez.jaroslav.compiler.components.statement.SwitchStatement;
 import com.perez.jaroslav.compiler.components.variables.ArgumentVariable;
 import com.perez.jaroslav.compiler.listener.base.AbstractBaseListener;
 import com.perez.jaroslav.compiler.program.CompilationUnit;
@@ -183,25 +184,27 @@ public class MainListener extends AbstractBaseListener {
     @Override
     public void enterStatement(C2asmParser.StatementContext ctx) {
         //if statement parent is while, then compare rax and make a jump
-        if(ctx.parent instanceof C2asmParser.While_statementContext){
+        if (ctx.parent instanceof C2asmParser.While_statementContext) {
             redirectListener.getCompilationUnit().addLoopJumpToEnd();
         }
     }
 
     @Override
-    public void exitStatement(C2asmParser.StatementContext ctx) {
-        if(ctx.parent instanceof C2asmParser.While_statementContext){
-            redirectListener.getCompilationUnit().addLoopJumpToBegin();
-        }
-
-        //gdy rodzic to selection statement i nie ma else
-        if( ctx.parent.getRuleIndex() == 69 && ctx.parent.getChildCount() == 5 )
-            redirectListener.getCompilationUnit().addIfSkipLabel();
+    public void enterElse_statement(C2asmParser.Else_statementContext ctx) {
+        redirectListener.getCompilationUnit().addIfLabel();
     }
 
     @Override
-    public void enterElse_statement(C2asmParser.Else_statementContext ctx) {
-        redirectListener.getCompilationUnit().addIfSkipLabel();
+    public void exitStatement(C2asmParser.StatementContext ctx) {
+        //gdy rodzic to selection statement i nie ma else
+        if(ctx.parent instanceof C2asmParser.Selection_statementContext && ctx.parent.getChildCount() == 5
+                && ctx.parent.getChild(0).getText().equals("if")){
+            redirectListener.getCompilationUnit().addIfLabel();
+        }
+        else if(ctx.parent instanceof C2asmParser.Labeled_statementContext && ctx.parent.getChild(0).getText().equals("case")){
+            redirectListener.getCompilationUnit().addIfLabel();
+        }else if(ctx.parent instanceof C2asmParser.Labeled_statementContext && ctx.parent.getChild(0).getText().equals("default")){
+            //  redirectListener.getCo
+        }
     }
-
 }

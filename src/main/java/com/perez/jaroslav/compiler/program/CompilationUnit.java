@@ -40,7 +40,7 @@ public class CompilationUnit {
     private Stack<ForLoop> forLoops = new Stack<>();
     private Stack<DoLoop> doLoops = new Stack<>();*/
     private Stack<AbstractLoop> loops = new Stack<>();
-    private LinkedList<SelectionStatement> selectionStatement = new LinkedList<>();
+    private Stack<SelectionStatement> selectionStatement = new Stack<>();
 
     public Function parsedFunction;
 
@@ -371,13 +371,12 @@ public class CompilationUnit {
         parsedFunction.addCode("JMP " + loop.label + "_before\n");
     }
 
-    public void addIfJump(){
-        IfStatement ifStatement = new IfStatement();
-        selectionStatement.add(ifStatement);
-        parsedFunction.addCode(ifStatement.addJumpIfFalse());
+    public void addIfJump(SelectionStatement selection) {
+        selectionStatement.push(selection);
+        parsedFunction.addCode(selection.addJumpAfterExpression());
     }
 
-    public void addIfSkipLabel(){
-        parsedFunction.addCode( selectionStatement.removeFirst().label + "_else:\n");
+    public void addIfLabel(){
+        parsedFunction.addCode( selectionStatement.pop().addAfterLabel());
     }
 }
