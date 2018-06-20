@@ -158,7 +158,17 @@ public class ExpressionEvaluator {
     }
 
     public void loadNotExpression(){
-        //todo logical not expression
+        if(copyValues){
+            String register = getLatestRegister();
+            String label = "bool_" + randomString.nextString();
+            content.append("TEST %" + register + ",%" + register + "\n");
+            content.append("JNZ " + label + "\n");
+            content.append("MOV $1,%" + register + "\n");
+            content.append("JMP " + label + "_after\n");
+            content.append(label + ":\n");
+            content.append("XOR %" + register + ",%" + register + "\n");
+            content.append(label + "_after:\n");
+        }
     }
 
     public void loadLogicalOrExpression(){
