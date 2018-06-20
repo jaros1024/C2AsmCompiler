@@ -2,6 +2,7 @@ package com.perez.jaroslav.compiler.expressions.evaluator;
 
 import com.perez.jaroslav.compiler.helpers.Registers;
 import com.perez.jaroslav.compiler.helpers.TypeHelper;
+import com.perez.jaroslav.compiler.util.RandomString;
 
 import java.util.Stack;
 
@@ -11,6 +12,8 @@ public class ExpressionEvaluator {
     public boolean copyValues = true;
     private Stack<String> usedRegisters = new Stack<>();
     private String assignmentTarget;
+
+    private RandomString randomString = new RandomString(8);
 
     public String getExpression(){
         return content.toString();
@@ -46,6 +49,83 @@ public class ExpressionEvaluator {
             String second = getLatestRegister();
             content.append("ADD %" + first + ",%" + second + "\n");
         }
+    }
+
+    public void loadSubtractiveExpression(){
+        if(copyValues){
+            String first = releaseRegister();
+            String second = getLatestRegister();
+            content.append("SUB %" + first + ",%" + second + "\n");
+        }
+    }
+
+    public void loadDivisionExpression(){
+        if(copyValues){
+            String first = releaseRegister();
+            String second = getLatestRegister();
+            content.append("MOV %" + second + ",%rax\n");
+            content.append("XOR %rdx,%rdx\n");
+            content.append("IDIV %" + first + "\n");
+            content.append("MOV %rax,%" + second + "\n");
+        }
+    }
+
+    public void loadModuloExpression(){
+        if(copyValues){
+            String first = releaseRegister();
+            String second = getLatestRegister();
+            content.append("MOV %" + second + ",%rax\n");
+            content.append("XOR %rdx,%rdx\n");
+            content.append("IDIV %" + first + "\n");
+            content.append("MOV %rdx,%" + second + "\n");
+        }
+    }
+
+    public void loadPostfixIncrementExpression(){
+        //todo postfix increment expression
+    }
+
+    public void loadPostfixDecrementExpression(){
+        //todo postfix decrement expression
+    }
+
+    public void loadPrefixIncrementExpression(){
+        //todo prefix increment expression
+    }
+
+    public void loadPrefixDecrementExpression(){
+        //todo prefix decrement expression
+    }
+
+    public void loadBiggerThanExpression(){
+        if(copyValues){
+            String first = releaseRegister();
+            String second = getLatestRegister();
+            String label = "cmp_" + randomString.nextString();
+            content.append("CMP %" + first + ",%" + second + "\n");
+            content.append("JG " + label + "\n");
+            content.append("XOR %" + second + ",%" + second + "\n");
+            content.append("JMP " + label + "_after\n");
+            content.append(label + ":\n");
+            content.append("MOV $1,%" + second + "\n");
+            content.append(label + "_after:\n");
+        }
+    }
+
+    public void loadLessThanExpression(){
+        //todo less than expression
+    }
+
+    public void loadBiggerEqualExpression(){
+        //todo bigger or equal expression
+    }
+
+    public void loadLessEqualExpression(){
+        //todo less or equal expression
+    }
+
+    public void loadNotExpression(){
+        //todo logical not expression
     }
 
     public void loadLogicalOrExpression(){

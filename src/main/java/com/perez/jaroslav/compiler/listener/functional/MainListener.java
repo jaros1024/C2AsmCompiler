@@ -1,5 +1,6 @@
 package com.perez.jaroslav.compiler.listener.functional;
 
+import com.perez.jaroslav.compiler.antlr.C2asmLexer;
 import com.perez.jaroslav.compiler.antlr.C2asmParser;
 import com.perez.jaroslav.compiler.components.variables.ArgumentVariable;
 import com.perez.jaroslav.compiler.listener.base.AbstractBaseListener;
@@ -183,15 +184,14 @@ public class MainListener extends AbstractBaseListener {
     @Override
     public void enterStatement(C2asmParser.StatementContext ctx) {
         //if statement parent is while, then compare rax and make a jump
-        if(ctx.parent.getRuleIndex() == 71){
+        if(ctx.parent instanceof C2asmParser.While_statementContext){
             redirectListener.getCompilationUnit().addLoopJumpToEnd();
         }
     }
 
     @Override
     public void exitStatement(C2asmParser.StatementContext ctx) {
-        //if statement parent is while, then jump to begin
-        if(ctx.parent.getRuleIndex() == 71){
+        if(ctx.parent instanceof C2asmParser.While_statementContext){
             redirectListener.getCompilationUnit().addLoopJumpToBegin();
         }
 
