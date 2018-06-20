@@ -12,7 +12,7 @@ import java.io.PrintStream;
 
 public class RedirectListener extends C2asmBaseListener {
     private AbstractBaseListener baseListener;
-    private AbstractBaseListener previousListener;
+    public AbstractBaseListener previousListener;
     private CompilationUnit compilationUnit;
     private PrintStream writer;
 

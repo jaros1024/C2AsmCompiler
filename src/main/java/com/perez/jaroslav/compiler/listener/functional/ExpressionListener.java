@@ -5,9 +5,12 @@ import com.perez.jaroslav.compiler.components.statement.IfStatement;
 import com.perez.jaroslav.compiler.components.statement.SwitchStatement;
 import com.perez.jaroslav.compiler.expressions.PrimaryExpression;
 import com.perez.jaroslav.compiler.expressions.evaluator.ExpressionEvaluator;
+import com.perez.jaroslav.compiler.helpers.TypeHelper;
 import com.perez.jaroslav.compiler.helpers.VariableHelper;
 import com.perez.jaroslav.compiler.listener.base.AbstractBaseListener;
+import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,10 +25,12 @@ public class ExpressionListener extends AbstractBaseListener {
         for(String str : expressions){
             //System.out.println(str);
         }
+        //todo check with instanceof
         if(ctx.parent.getRuleIndex() != 48){
             if(shouldReturn){
                 expressionEvaluator.loadInnerExpression();
             }
+            System.out.println("Expression parent is " + ctx.parent.getRuleIndex() + " so I will return");
             redirectListener.getCompilationUnit().parsedFunction.addCode(expressionEvaluator.getExpression());
             redirectListener.setBaseListener(new MainListener(), this);
             System.out.println(expressionEvaluator.getExpression());
@@ -46,9 +51,14 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void exitAdditive_expression(C2asmParser.Additive_expressionContext ctx) {
-        expressions.add("Additive expression: "+ctx.getText());
         if(ctx.children.size() > 1){
-            expressionEvaluator.loadAdditiveExpression();
+            String operator = ctx.children.get(1).getText();
+            if(operator.equals("+")){
+                expressionEvaluator.loadAdditiveExpression();
+            }
+            else if(operator.equals("-")){
+                expressionEvaluator.loadSubtractiveExpression();
+            }
         }
     }
 
@@ -60,7 +70,16 @@ public class ExpressionListener extends AbstractBaseListener {
     @Override
     public void exitMultiplicative_expression(C2asmParser.Multiplicative_expressionContext ctx) {
         if(ctx.children.size() > 1){
-            expressionEvaluator.loadMultiplicativeExpression();
+            String operator = ctx.children.get(1).getText();
+            if(operator.equals("*")){
+                expressionEvaluator.loadMultiplicativeExpression();
+            }
+            else if(operator.equals("/")){
+                expressionEvaluator.loadDivisionExpression();
+            }
+            else if(operator.equals("%")){
+                expressionEvaluator.loadModuloExpression();
+            }
         }
     }
 
@@ -81,12 +100,44 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void exitUnary_expression(C2asmParser.Unary_expressionContext ctx) {
-        expressions.add("Unary expression: " + ctx.getText());
+        //CASE 1: prefix expression
+        if(ctx.children.size() == 2){
+            String operator = ctx.children.get(0).getText();
+            if(operator.equals("++")){
+                expressionEvaluator.loadPrefixIncrementExpression();
+            }
+            else if(operator.equals("--")){
+                expressionEvaluator.loadPrefixDecrementExpression();
+            }
+            else if(operator.equals("!")){
+                expressionEvaluator.loadNotExpression();
+            }
+        }
     }
 
     @Override
     public void enterPostfix_expression(C2asmParser.Postfix_expressionContext ctx) {
-        //baseListener.enterPostfix_expression(ctx);
+        //CASE 1: method call
+        if(ctx.children.size() == 4){
+            List<C2asmParser.Argument_expression_listContext> argumentContexts =
+                    ctx.argument_expression_list();
+            String methodName = ctx.primary_expression().getText();
+            if(argumentContexts != null && argumentContexts.size() > 0){
+                shouldReturn = false;
+                redirectListener.setBaseListener(new MethodCallListener(methodName), this);
+            }
+        }
+        //CASE 2: postfix expression
+        else if(ctx.children.size() == 2){
+            String operator = ctx.children.get(1).getText();
+            if(operator.equals("++")){
+                expressionEvaluator.loadPostfixIncrementExpression();
+            }
+            else if(operator.equals("--")){
+                expressionEvaluator.loadPostfixDecrementExpression();
+            }
+        }
+
     }
 
     @Override
@@ -117,13 +168,14 @@ public class ExpressionListener extends AbstractBaseListener {
             if(constantContext == null){
                 primaryExpression.type = PrimaryExpression.TYPE_VARIABLE;
                 primaryExpression.operand = VariableHelper.getVariableOperand(ctx.getText(), redirectListener.getCompilationUnit());
+                expressionEvaluator.loadPrimaryExpression(primaryExpression.operand,
+                        redirectListener.getCompilationUnit().getVariable(ctx.getText()).type);
             }
             else {
                 primaryExpression.type = PrimaryExpression.TYPE_CONST;
                 primaryExpression.operand = "$" + ctx.getText();
+                expressionEvaluator.loadPrimaryExpression(primaryExpression.operand);
             }
-            System.out.println("Primary expression operand is: " + primaryExpression.operand);
-            expressionEvaluator.loadPrimaryExpression(primaryExpression.operand);
         }
         else {
             expressionEvaluator.loadPrimaryExpression("%rax");
@@ -233,7 +285,21 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void exitRelational_expression(C2asmParser.Relational_expressionContext ctx) {
-        expressions.add("Relational expression: " + ctx.getText());
+        if(ctx.children.size() == 3){
+            String operand = ctx.getChild(1).getText();
+            if(operand.equals(">")){
+                expressionEvaluator.loadBiggerThanExpression();
+            }
+            else if(operand.equals("<")){
+                expressionEvaluator.loadLessThanExpression();
+            }
+            else if(operand.equals(">=")){
+                expressionEvaluator.loadBiggerEqualExpression();
+            }
+            else if(operand.equals("<=")){
+                expressionEvaluator.loadLessEqualExpression();
+            }
+        }
     }
 
     @Override

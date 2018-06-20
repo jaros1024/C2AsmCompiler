@@ -1,5 +1,6 @@
 package com.perez.jaroslav.compiler.listener.functional;
 
+import com.perez.jaroslav.compiler.antlr.C2asmLexer;
 import com.perez.jaroslav.compiler.antlr.C2asmParser;
 import com.perez.jaroslav.compiler.components.statement.SwitchStatement;
 import com.perez.jaroslav.compiler.components.variables.ArgumentVariable;
@@ -143,10 +144,6 @@ public class MainListener extends AbstractBaseListener {
         if(argumentContexts != null && argumentContexts.size() > 0){
             redirectListener.setBaseListener(new MethodCallListener(methodName), this);
         }
-        if(redirectListener.getCompilationUnit().inLoop()){
-            //todo replace with expression evaluation
-            redirectListener.getCompilationUnit().addLoopCondition("MOV $" + methodName + ",%rax\n");
-        }
     }
 
     @Override
@@ -186,9 +183,18 @@ public class MainListener extends AbstractBaseListener {
     }
 
     @Override
+    public void enterStatement(C2asmParser.StatementContext ctx) {
+        //if statement parent is while, then compare rax and make a jump
+        if (ctx.parent instanceof C2asmParser.While_statementContext) {
+            redirectListener.getCompilationUnit().addLoopJumpToEnd();
+        }
+    }
+
+    @Override
     public void enterElse_statement(C2asmParser.Else_statementContext ctx) {
         redirectListener.getCompilationUnit().addIfLabel();
     }
+
     @Override
     public void exitStatement(C2asmParser.StatementContext ctx) {
         //gdy rodzic to selection statement i nie ma else
@@ -199,7 +205,7 @@ public class MainListener extends AbstractBaseListener {
         else if(ctx.parent instanceof C2asmParser.Labeled_statementContext && ctx.parent.getChild(0).getText().equals("case")){
             redirectListener.getCompilationUnit().addIfLabel();
         }else if(ctx.parent instanceof C2asmParser.Labeled_statementContext && ctx.parent.getChild(0).getText().equals("default")){
-          //  redirectListener.getCo
+            //  redirectListener.getCo
         }
     }
 }
