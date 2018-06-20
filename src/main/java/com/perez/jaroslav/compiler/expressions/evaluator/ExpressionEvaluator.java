@@ -15,7 +15,7 @@ public class ExpressionEvaluator {
     public boolean copyAddress = false;
     public String copyMov;
     public String copyRegister;
-    public String copyValueRegister;
+    public String copyType;
 
     private Stack<String> usedRegisters = new Stack<>();
     private String assignmentTarget;
@@ -33,7 +33,7 @@ public class ExpressionEvaluator {
             String register = Registers.getRegisterForType(baseRegister, type);
             if(copyAddress){
                 copyRegister = baseRegister;
-                copyValueRegister = register;
+                copyType = type;
             }
             content.append("XOR %" + register + ",%" + register + "\n");
             content.append(mov.toUpperCase() + " " + operand + ",%" + register + "\n");
@@ -104,21 +104,33 @@ public class ExpressionEvaluator {
     }
 
     public void loadPostfixIncrementExpression(){
-        //todo postfix increment expression
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("PUSH %" + copyRegister + "\n");
+        content.append("INC %" + copyValueRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
+        content.append("POP %" + copyRegister + "\n");
     }
 
     public void loadPostfixDecrementExpression(){
-        //todo postfix decrement expression
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("PUSH %" + copyRegister + "\n");
+        content.append("DEC %" + copyValueRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
+        content.append("POP %" + copyRegister + "\n");
     }
 
     public void loadPrefixIncrementExpression(){
         String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
         content.append("INC %" + copyValueRegister + "\n");
         content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
     }
 
     public void loadPrefixDecrementExpression(){
         String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
         content.append("DEC %" + copyValueRegister + "\n");
         content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
     }

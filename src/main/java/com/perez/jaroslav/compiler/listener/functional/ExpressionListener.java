@@ -79,7 +79,7 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void exitCast_expression(C2asmParser.Cast_expressionContext ctx) {
-        expressions.add("Cast expression: " + ctx.getText());
+        //expressions.add("Cast expression: " + ctx.getText());
     }
 
     @Override
@@ -106,12 +106,15 @@ public class ExpressionListener extends AbstractBaseListener {
             String operator = ctx.children.get(0).getText();
             if(operator.equals("++")){
                 expressionEvaluator.loadPrefixIncrementExpression();
+                expressionEvaluator.copyAddress = false;
             }
             else if(operator.equals("--")){
                 expressionEvaluator.loadPrefixDecrementExpression();
+                expressionEvaluator.copyAddress = false;
             }
             else if(operator.equals("!")){
                 expressionEvaluator.loadNotExpression();
+                expressionEvaluator.copyAddress = false;
             }
         }
     }
@@ -132,18 +135,28 @@ public class ExpressionListener extends AbstractBaseListener {
         else if(ctx.children.size() == 2){
             String operator = ctx.children.get(1).getText();
             if(operator.equals("++")){
-                expressionEvaluator.loadPostfixIncrementExpression();
+                expressionEvaluator.copyAddress = true;
             }
             else if(operator.equals("--")){
-                expressionEvaluator.loadPostfixDecrementExpression();
+                expressionEvaluator.copyAddress = true;
             }
         }
-
     }
 
     @Override
     public void exitPostfix_expression(C2asmParser.Postfix_expressionContext ctx) {
-        expressions.add("Postfix expression: " + ctx.getText());
+        //CASE: postfix expression
+        if(ctx.children.size() == 2){
+            String operator = ctx.children.get(1).getText();
+            if(operator.equals("++")){
+                expressionEvaluator.loadPostfixIncrementExpression();
+                expressionEvaluator.copyAddress = false;
+            }
+            else if(operator.equals("--")){
+                expressionEvaluator.loadPostfixDecrementExpression();
+                expressionEvaluator.copyAddress = false;
+            }
+        }
     }
 
     @Override

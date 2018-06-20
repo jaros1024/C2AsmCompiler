@@ -10,8 +10,7 @@ int main()
 {
    int zmienna = 0;
 
-   ++zmienna;
-   --zmienna;
+   zmienna++;
 
    printf("Test zmienna = %d\n", zmienna);
 
