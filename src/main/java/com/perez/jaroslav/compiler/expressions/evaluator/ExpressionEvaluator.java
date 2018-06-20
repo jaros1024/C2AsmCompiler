@@ -1,6 +1,7 @@
 package com.perez.jaroslav.compiler.expressions.evaluator;
 
 import com.perez.jaroslav.compiler.helpers.Registers;
+import com.perez.jaroslav.compiler.helpers.TypeHelper;
 
 import java.util.Stack;
 
@@ -15,10 +16,23 @@ public class ExpressionEvaluator {
         return content.toString();
     }
 
-    public void loadPrimaryExpression(String operand){
-        System.out.println("Loading primary expression");
+    public void loadPrimaryExpression(String operand, String type){
         if(copyValues){
             String register = getNextRegister();
+            String mov = TypeHelper.getMove(type);
+            register = Registers.getRegisterForType(register, type);
+            content.append("XOR %" + register + ",%" + register + "\n");
+            content.append(mov.toUpperCase() + " " + operand + ",%" + register + "\n");
+        }
+        else {
+            assignmentTarget = operand;
+        }
+    }
+
+    public void loadPrimaryExpression(String operand){
+        if(copyValues){
+            String register = getNextRegister();
+            content.append("XOR %" + register + ",%" + register + "\n");
             content.append("MOV " + operand + ",%" + register + "\n");
         }
         else {
@@ -63,6 +77,7 @@ public class ExpressionEvaluator {
             String first = releaseRegister();
             String second = getLatestRegister();
             content.append("XOR %" + first + ",%" + second + "\n");
+            content.append("NOT %" + second + "\n");
         }
     }
 
@@ -71,7 +86,6 @@ public class ExpressionEvaluator {
             String first = releaseRegister();
             String second = getLatestRegister();
             content.append("XOR %" + first + ",%" + second + "\n");
-            content.append("NOT %" + second + "\n");
         }
     }
 

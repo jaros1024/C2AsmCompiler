@@ -4,10 +4,12 @@ import com.perez.jaroslav.compiler.antlr.C2asmParser;
 import com.perez.jaroslav.compiler.components.variables.Variable;
 import com.perez.jaroslav.compiler.expressions.PrimaryExpression;
 import com.perez.jaroslav.compiler.expressions.evaluator.ExpressionEvaluator;
+import com.perez.jaroslav.compiler.helpers.TypeHelper;
 import com.perez.jaroslav.compiler.helpers.VariableHelper;
 import com.perez.jaroslav.compiler.listener.base.AbstractBaseListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,6 +28,7 @@ public class ExpressionListener extends AbstractBaseListener {
             if(shouldReturn){
                 expressionEvaluator.loadInnerExpression();
             }
+            System.out.println("Expression parent is " + ctx.parent.getRuleIndex() + " so I will return");
             redirectListener.getCompilationUnit().parsedFunction.addCode(expressionEvaluator.getExpression());
             redirectListener.setBaseListener(new MainListener(), this);
             System.out.println(expressionEvaluator.getExpression());
@@ -82,7 +85,14 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void enterPostfix_expression(C2asmParser.Postfix_expressionContext ctx) {
-        //baseListener.enterPostfix_expression(ctx);
+        //if this postfix expression is a method call expression
+        List<C2asmParser.Argument_expression_listContext> argumentContexts =
+                ctx.argument_expression_list();
+        String methodName = ctx.primary_expression().getText();
+        if(argumentContexts != null && argumentContexts.size() > 0){
+            shouldReturn = false;
+            redirectListener.setBaseListener(new MethodCallListener(methodName), this);
+        }
     }
 
     @Override
@@ -106,13 +116,14 @@ public class ExpressionListener extends AbstractBaseListener {
             if(constantContext == null){
                 primaryExpression.type = PrimaryExpression.TYPE_VARIABLE;
                 primaryExpression.operand = VariableHelper.getVariableOperand(ctx.getText(), redirectListener.getCompilationUnit());
+                expressionEvaluator.loadPrimaryExpression(primaryExpression.operand,
+                        redirectListener.getCompilationUnit().getVariable(ctx.getText()).type);
             }
             else {
                 primaryExpression.type = PrimaryExpression.TYPE_CONST;
                 primaryExpression.operand = "$" + ctx.getText();
+                expressionEvaluator.loadPrimaryExpression(primaryExpression.operand);
             }
-            System.out.println("Primary expression operand is: " + primaryExpression.operand);
-            expressionEvaluator.loadPrimaryExpression(primaryExpression.operand);
         }
         else {
             expressionEvaluator.loadPrimaryExpression("%rax");

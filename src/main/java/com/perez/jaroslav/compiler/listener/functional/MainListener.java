@@ -1,17 +1,13 @@
 package com.perez.jaroslav.compiler.listener.functional;
 
 import com.perez.jaroslav.compiler.antlr.C2asmParser;
-import com.perez.jaroslav.compiler.components.functions.Function;
 import com.perez.jaroslav.compiler.components.variables.ArgumentVariable;
-import com.perez.jaroslav.compiler.helpers.Registers;
 import com.perez.jaroslav.compiler.listener.base.AbstractBaseListener;
 import com.perez.jaroslav.compiler.program.CompilationUnit;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import static com.perez.jaroslav.compiler.helpers.Registers.getRegisterForArgument;
 
 public class MainListener extends AbstractBaseListener {
 
@@ -146,10 +142,6 @@ public class MainListener extends AbstractBaseListener {
         if(argumentContexts != null && argumentContexts.size() > 0){
             redirectListener.setBaseListener(new MethodCallListener(methodName), this);
         }
-        if(redirectListener.getCompilationUnit().inLoop()){
-            //todo replace with expression evaluation
-            redirectListener.getCompilationUnit().addLoopCondition("MOV $" + methodName + ",%rax\n");
-        }
     }
 
     @Override
@@ -186,6 +178,22 @@ public class MainListener extends AbstractBaseListener {
     @Override
     public void enterExpression(C2asmParser.ExpressionContext ctx) {
         redirectListener.setBaseListener(new ExpressionListener(), this);
+    }
+
+    @Override
+    public void enterStatement(C2asmParser.StatementContext ctx) {
+        //if statement parent is while, then compare rax and make a jump
+        if(ctx.parent.getRuleIndex() == 71){
+            redirectListener.getCompilationUnit().addLoopJumpToEnd();
+        }
+    }
+
+    @Override
+    public void exitStatement(C2asmParser.StatementContext ctx) {
+        //if statement parent is while, then jump to begin
+        if(ctx.parent.getRuleIndex() == 71){
+            redirectListener.getCompilationUnit().addLoopJumpToBegin();
+        }
     }
 
 }

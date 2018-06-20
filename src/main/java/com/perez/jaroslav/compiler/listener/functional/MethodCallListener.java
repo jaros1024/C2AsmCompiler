@@ -43,6 +43,6 @@ public class MethodCallListener extends AbstractBaseListener {
     public void exitArgument_expression_list(C2asmParser.Argument_expression_listContext ctx) {
         arguments.remove(0);
         redirectListener.getCompilationUnit().callFunction(methodName, arguments);
-        redirectListener.setBaseListener(new MainListener(), this);
+        redirectListener.setBaseListener(redirectListener.previousListener, new MainListener());
     }
 }

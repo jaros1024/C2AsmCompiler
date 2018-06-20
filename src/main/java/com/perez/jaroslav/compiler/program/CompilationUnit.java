@@ -360,10 +360,14 @@ public class CompilationUnit {
         parsedFunction.addCode("JMP " + loop.label + "_before\n");
     }
 
-    public void addLoopCondition(String condition){
+    public void addLoopJumpToEnd(){
         AbstractLoop loop = loops.peek();
-        parsedFunction.addCode(condition);
-        parsedFunction.addCode("CMP %rax,%rax\n");
+        parsedFunction.addCode("TEST %rax,%rax\n");
         parsedFunction.addCode("JZ " + loop.label + "_after\n");
+    }
+
+    public void addLoopJumpToBegin(){
+        AbstractLoop loop = loops.peek();
+        parsedFunction.addCode("JMP " + loop.label + "_before\n");
     }
 }
