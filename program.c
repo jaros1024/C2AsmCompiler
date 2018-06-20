@@ -10,10 +10,10 @@ int main()
 {
    int zmienna = 0;
 
-   while(!zmienna){
-        printf("Test zmienna = %d\n", zmienna);
-        zmienna = zmienna + 1;
-   }
+   ++zmienna;
+   --zmienna;
+
+   printf("Test zmienna = %d\n", zmienna);
 
    return 0;
 }
