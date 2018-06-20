@@ -8,11 +8,11 @@ int blabla;
 
 int main()
 {
+   int zmienna = 20;
 
-switch(blabla)
-case(1):
-{
-blabla=2;
-}
-   return 1;
+   zmienna %= 3;
+
+   printf("Test zmienna = %d\n", zmienna);
+
+   return 0;
 }

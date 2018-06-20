@@ -5,9 +5,12 @@ import com.perez.jaroslav.compiler.components.statement.IfStatement;
 import com.perez.jaroslav.compiler.components.statement.SwitchStatement;
 import com.perez.jaroslav.compiler.expressions.PrimaryExpression;
 import com.perez.jaroslav.compiler.expressions.evaluator.ExpressionEvaluator;
+import com.perez.jaroslav.compiler.helpers.TypeHelper;
 import com.perez.jaroslav.compiler.helpers.VariableHelper;
 import com.perez.jaroslav.compiler.listener.base.AbstractBaseListener;
+import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,25 +19,20 @@ public class ExpressionListener extends AbstractBaseListener {
     private ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
     private boolean shouldReturn = true;
 
+    //marks if we are doing addition/subtraction... assignment, so we will need to copy lvalue
+    private boolean operationAssignment = false;
+
     @Override
     public void exitExpression(C2asmParser.ExpressionContext ctx) {
-        System.out.println("Parent index = " + ctx.parent.getRuleIndex());
-        for(String str : expressions){
-            //System.out.println(str);
-        }
-
         if(!(ctx.parent instanceof C2asmParser.Primary_expressionContext)){
             if(shouldReturn){
                 expressionEvaluator.loadInnerExpression();
             }
-            System.out.println("Expression parent is " + ctx.parent.getRuleIndex() + " so I will return");
             redirectListener.getCompilationUnit().parsedFunction.addCode(expressionEvaluator.getExpression());
             if(ctx.parent instanceof C2asmParser.Selection_statementContext && ctx.parent.getChild(0).getText().equals("if")){
                 redirectListener.getCompilationUnit().addStatementJump(new IfStatement());
             }
-            //System.out.println("WRACAM "+ ctx.parent.getText());
             redirectListener.setBaseListener(redirectListener.previousListener, this);
-            System.out.println(expressionEvaluator.getExpression());
         }
         else {
             expressionEvaluator.loadInnerExpression();
@@ -87,12 +85,24 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void exitCast_expression(C2asmParser.Cast_expressionContext ctx) {
-        expressions.add("Cast expression: " + ctx.getText());
+        //expressions.add("Cast expression: " + ctx.getText());
     }
 
     @Override
     public void enterUnary_expression(C2asmParser.Unary_expressionContext ctx) {
-        //baseListener.enterUnary_expression(ctx);
+        //CASE 1: prefix expression
+        if(ctx.children.size() == 2){
+            String operator = ctx.children.get(0).getText();
+            if(operator.equals("++")){
+                expressionEvaluator.copyAddress = true;
+            }
+            else if(operator.equals("--")){
+                expressionEvaluator.copyAddress = true;
+            }
+            else if(operator.equals("!")){
+                expressionEvaluator.copyAddress = true;
+            }
+        }
     }
 
     @Override
@@ -102,12 +112,15 @@ public class ExpressionListener extends AbstractBaseListener {
             String operator = ctx.children.get(0).getText();
             if(operator.equals("++")){
                 expressionEvaluator.loadPrefixIncrementExpression();
+                expressionEvaluator.copyAddress = false;
             }
             else if(operator.equals("--")){
                 expressionEvaluator.loadPrefixDecrementExpression();
+                expressionEvaluator.copyAddress = false;
             }
             else if(operator.equals("!")){
                 expressionEvaluator.loadNotExpression();
+                expressionEvaluator.copyAddress = false;
             }
         }
     }
@@ -128,10 +141,10 @@ public class ExpressionListener extends AbstractBaseListener {
         else if(ctx.children.size() == 2){
             String operator = ctx.children.get(1).getText();
             if(operator.equals("++")){
-                expressionEvaluator.loadPostfixIncrementExpression();
+                expressionEvaluator.copyAddress = true;
             }
             else if(operator.equals("--")){
-                expressionEvaluator.loadPostfixDecrementExpression();
+                expressionEvaluator.copyAddress = true;
             }
         }
 
@@ -139,13 +152,23 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void exitPostfix_expression(C2asmParser.Postfix_expressionContext ctx) {
-        expressions.add("Postfix expression: " + ctx.getText());
+        //CASE: postfix expression
+        if(ctx.children.size() == 2){
+            String operator = ctx.children.get(1).getText();
+            if(operator.equals("++")){
+                expressionEvaluator.loadPostfixIncrementExpression();
+                expressionEvaluator.copyAddress = false;
+            }
+            else if(operator.equals("--")){
+                expressionEvaluator.loadPostfixDecrementExpression();
+                expressionEvaluator.copyAddress = false;
+            }
+        }
+
     }
 
     @Override
     public void exitPrimary_expression(C2asmParser.Primary_expressionContext ctx) {
-        expressions.add("Primary expression: " + ctx.getText());
-        System.out.println("3 parent is: " + ctx.parent.parent.parent.getRuleIndex());
         C2asmParser.ConstantContext constantContext = ctx.constant();
         if(ctx.expression() == null){
             PrimaryExpression primaryExpression = new PrimaryExpression();
@@ -169,13 +192,66 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void enterAssignment_expression(C2asmParser.Assignment_expressionContext ctx) {
-        //baseListener.enterAssignment_expression(ctx);
+        if(ctx.children.size() > 1){
+            String operator = ctx.assignment_operator().getText();
+            if(operator.equals("==")){
+                expressionEvaluator.loadAssignmentExpression();
+            }
+            else if(operator.equals("+=")){
+                expressionEvaluator.copyAddress = true;
+                operationAssignment = true;
+            }
+            else if(operator.equals("-=")){
+                expressionEvaluator.copyAddress = true;
+                operationAssignment = true;
+            }
+            else if(operator.equals("*=")){
+                expressionEvaluator.copyAddress = true;
+                operationAssignment = true;
+            }
+            else if(operator.equals("/=")){
+                expressionEvaluator.copyAddress = true;
+                operationAssignment = true;
+            }
+            else if(operator.equals("%=")){
+                expressionEvaluator.copyAddress = true;
+                operationAssignment = true;
+            }
+        }
     }
 
     @Override
     public void exitAssignment_expression(C2asmParser.Assignment_expressionContext ctx) {
         if(ctx.children.size() > 1){
-            expressionEvaluator.loadAssignmentExpression();
+            String operator = ctx.assignment_operator().getText();
+            if(operator.equals("==")){
+                expressionEvaluator.loadAssignmentExpression();
+            }
+            else if(operator.equals("+=")){
+                expressionEvaluator.loadAddAssignmentExpression();
+                expressionEvaluator.copyAddress = false;
+                operationAssignment = false;
+            }
+            else if(operator.equals("-=")){
+                expressionEvaluator.loadSubAssignmentExpression();
+                expressionEvaluator.copyAddress = false;
+                operationAssignment = false;
+            }
+            else if(operator.equals("*=")){
+                expressionEvaluator.loadMulAssignmentExpression();
+                expressionEvaluator.copyAddress = false;
+                operationAssignment = false;
+            }
+            else if(operator.equals("/=")){
+                expressionEvaluator.loadDivAssignmentExpression();
+                expressionEvaluator.copyAddress = false;
+                operationAssignment = false;
+            }
+            else if(operator.equals("%=")){
+                expressionEvaluator.loadModAssignmentExpression();
+                expressionEvaluator.copyAddress = false;
+                operationAssignment = false;
+            }
             shouldReturn = false;
         }
     }
@@ -299,12 +375,16 @@ public class ExpressionListener extends AbstractBaseListener {
 
     @Override
     public void enterLvalue(C2asmParser.LvalueContext ctx){
-        expressionEvaluator.copyValues = false;
+        if(!operationAssignment){
+            expressionEvaluator.copyExpValue = false;
+        }
     }
 
     @Override
     public void exitLvalue(C2asmParser.LvalueContext ctx) {
-        System.out.println("Lvalue id = " + ctx.getRuleIndex());
-        expressionEvaluator.copyValues = true;
+        expressionEvaluator.copyExpValue = true;
+        if(expressionEvaluator.copyAddress){
+            expressionEvaluator.copyAddress = false;
+        }
     }
 }

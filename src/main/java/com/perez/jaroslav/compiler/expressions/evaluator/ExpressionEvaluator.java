@@ -1,5 +1,6 @@
 package com.perez.jaroslav.compiler.expressions.evaluator;
 
+import com.perez.jaroslav.compiler.components.variables.AbstractVariable;
 import com.perez.jaroslav.compiler.helpers.Registers;
 import com.perez.jaroslav.compiler.helpers.TypeHelper;
 import com.perez.jaroslav.compiler.util.RandomString;
@@ -9,7 +10,13 @@ import java.util.Stack;
 public class ExpressionEvaluator {
     private StringBuilder content = new StringBuilder();
     private int primaryExprCounter = 0;
-    public boolean copyValues = true;
+
+    public boolean copyExpValue = true;
+    public boolean copyAddress = false;
+    public String copyMov;
+    public String copyRegister;
+    public String copyType;
+
     private Stack<String> usedRegisters = new Stack<>();
     private String assignmentTarget;
 
@@ -19,21 +26,32 @@ public class ExpressionEvaluator {
         return content.toString();
     }
 
+    //used when loading variable
     public void loadPrimaryExpression(String operand, String type){
-        if(copyValues){
-            String register = getNextRegister();
+        if(copyExpValue){
+            String baseRegister = getNextRegister();
             String mov = TypeHelper.getMove(type);
-            register = Registers.getRegisterForType(register, type);
+            String register = Registers.getRegisterForType(baseRegister, type);
+            if(copyAddress){
+                copyRegister = baseRegister;
+                copyType = type;
+            }
             content.append("XOR %" + register + ",%" + register + "\n");
             content.append(mov.toUpperCase() + " " + operand + ",%" + register + "\n");
+
+            if(copyAddress){
+                loadOperandAddress(operand);
+                copyMov = mov;
+            }
         }
         else {
             assignmentTarget = operand;
         }
     }
 
+    //used when loading const
     public void loadPrimaryExpression(String operand){
-        if(copyValues){
+        if(copyExpValue){
             String register = getNextRegister();
             content.append("XOR %" + register + ",%" + register + "\n");
             content.append("MOV " + operand + ",%" + register + "\n");
@@ -43,8 +61,14 @@ public class ExpressionEvaluator {
         }
     }
 
+    private void loadOperandAddress(String operand){
+        String register = getNextRegister();
+        content.append("XOR %" + register + ",%" + register + "\n");
+        content.append("LEA " + operand + ",%" + register + "\n");
+    }
+
     public void loadAdditiveExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             content.append("ADD %" + first + ",%" + second + "\n");
@@ -52,7 +76,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadSubtractiveExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             content.append("SUB %" + first + ",%" + second + "\n");
@@ -60,7 +84,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadDivisionExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             content.append("MOV %" + second + ",%rax\n");
@@ -71,7 +95,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadModuloExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             content.append("MOV %" + second + ",%rax\n");
@@ -82,23 +106,39 @@ public class ExpressionEvaluator {
     }
 
     public void loadPostfixIncrementExpression(){
-        //todo postfix increment expression
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("PUSH %" + copyRegister + "\n");
+        content.append("INC %" + copyValueRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
+        content.append("POP %" + copyRegister + "\n");
     }
 
     public void loadPostfixDecrementExpression(){
-        //todo postfix decrement expression
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("PUSH %" + copyRegister + "\n");
+        content.append("DEC %" + copyValueRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
+        content.append("POP %" + copyRegister + "\n");
     }
 
     public void loadPrefixIncrementExpression(){
-        //todo prefix increment expression
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("INC %" + copyValueRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
     }
 
     public void loadPrefixDecrementExpression(){
-        //todo prefix decrement expression
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("DEC %" + copyValueRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
     }
 
     public void loadBiggerThanExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             String label = "cmp_" + randomString.nextString();
@@ -113,7 +153,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadLessThanExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             String label = "cmp_" + randomString.nextString();
@@ -128,7 +168,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadBiggerEqualExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             String label = "cmp_" + randomString.nextString();
@@ -143,7 +183,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadLessEqualExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             String label = "cmp_" + randomString.nextString();
@@ -158,7 +198,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadNotExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String register = getLatestRegister();
             String label = "bool_" + randomString.nextString();
             content.append("TEST %" + register + ",%" + register + "\n");
@@ -172,7 +212,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadLogicalOrExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             content.append("OR %" + first + ",%" + second + "\n");
@@ -180,7 +220,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadLogicalAndExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             content.append("AND %" + first + ",%" + second + "\n");
@@ -188,7 +228,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadMultiplicativeExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             content.append("IMUL %" + first + ",%" + second + "\n");
@@ -196,7 +236,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadEqualityExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             content.append("XOR %" + first + ",%" + second + "\n");
@@ -205,7 +245,7 @@ public class ExpressionEvaluator {
     }
 
     public void loadInequalityExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String first = releaseRegister();
             String second = getLatestRegister();
             content.append("XOR %" + first + ",%" + second + "\n");
@@ -218,10 +258,56 @@ public class ExpressionEvaluator {
     }
 
     public void loadInnerExpression(){
-        if(copyValues){
+        if(copyExpValue){
             String register = releaseRegister();
             content.append("MOV %" + register +",%rax\n");
         }
+    }
+
+    public void loadAddAssignmentExpression(){
+        String operand = releaseRegister();
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("ADD %" + operand + ",%" + copyRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
+    }
+
+    public void loadSubAssignmentExpression(){
+        String operand = releaseRegister();
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("SUB %" + operand + ",%" + copyRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
+    }
+
+    public void loadMulAssignmentExpression(){
+        String operand = releaseRegister();
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("IMUL %" + operand + ",%" + copyRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
+    }
+
+    public void loadDivAssignmentExpression(){
+        String operand = releaseRegister();
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("MOV %" + copyRegister + ",%rax\n");
+        content.append("XOR %rdx,%rdx\n");
+        content.append("IDIV %" + operand + "\n");
+        content.append("MOV %rax,%" + copyRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
+    }
+
+    public void loadModAssignmentExpression(){
+        String operand = releaseRegister();
+        String address = releaseRegister();
+        String copyValueRegister = Registers.getRegisterForType(copyRegister, copyType);
+        content.append("MOV %" + copyRegister + ",%rax\n");
+        content.append("XOR %rdx,%rdx\n");
+        content.append("IDIV %" + operand + "\n");
+        content.append("MOV %rdx,%" + copyRegister + "\n");
+        content.append(copyMov.toUpperCase() + " %" + copyValueRegister + ",(%" + address + ")\n");
     }
 
     private String getNextRegister(){

@@ -16,6 +16,7 @@ public class SystemFunctions {
 
     static {
         HashMap<String, ExternalFunction> stdio = new HashMap<>();
+
         ExternalFunction printf = new ExternalFunction();
         printf.name = "printf";
         printf.type = "void";
@@ -23,6 +24,15 @@ public class SystemFunctions {
         printf.variableLength = true;
         printf.mustHaveArguments = 1;
         stdio.put(printf.name, printf);
+
+        ExternalFunction scanf = new ExternalFunction();
+        scanf.name = "scanf";
+        scanf.type = "int";
+        scanf.arguments = new HashMap<>();
+        scanf.variableLength = true;
+        scanf.mustHaveArguments = 1;
+        stdio.put(scanf.name, scanf);
+
         headers.put("stdio", stdio);
     }
 

@@ -3,6 +3,7 @@ package com.perez.jaroslav.compiler.components.functions;
 import com.perez.jaroslav.compiler.components.variables.ArgumentVariable;
 import com.perez.jaroslav.compiler.components.variables.Variable;
 import com.perez.jaroslav.compiler.exceptions.BadSyntaxException;
+import com.perez.jaroslav.compiler.helpers.Registers;
 import com.perez.jaroslav.compiler.helpers.TypeHelper;
 
 import java.util.HashMap;
@@ -35,7 +36,7 @@ public class Function extends AbstractFunction {
         stringBuilder.append(content.toString());
 
         cleanStack(stringBuilder);
-        stringBuilder.append(ret(0));
+        stringBuilder.append(ret());
         stringBuilder.append('\n');
 
         return stringBuilder.toString();
@@ -51,7 +52,7 @@ public class Function extends AbstractFunction {
         }
 
         cleanStack(content);
-        content.append(ret(TypeHelper.getTypeSize(type)));
+        content.append(ret());
     }
 
     public void functionReturnVariable(String variable){
@@ -59,7 +60,14 @@ public class Function extends AbstractFunction {
             throw new BadSyntaxException("Void function cannot return any values");
         }
 
-        //todo implement
+        Variable result = localVariables.get(variable);
+        String mov = TypeHelper.getMove(result.type);
+        String register = Registers.getRegisterForType("rax", result.type);
+        content.append("XOR %rax,%rax\n");
+        content.append(mov.toUpperCase() + " " + result.address + ",%" + register + "\n");
+
+        cleanStack(content);
+        content.append(ret());
     }
 
     public void addCode(String code){
@@ -73,7 +81,7 @@ public class Function extends AbstractFunction {
 
         content.append("MOV $" + constant + ",%rax\n");
         cleanStack(content);
-        content.append(ret(0));
+        content.append(ret());
     }
 
     public void addLocalVariable(String identifier, String type, String value, boolean pointer){
@@ -83,8 +91,13 @@ public class Function extends AbstractFunction {
         localVariables.put(identifier, variable);
     }
 
-    private String ret(int size){
-        return (size == 0 ? "ret" : format("ret %d", size)) + "\n";
+    private String ret(){
+        int argumentsSize = 0;
+        for(String argName : arguments.keySet()){
+            ArgumentVariable argumentVariable = arguments.get(argName);
+            argumentsSize += TypeHelper.getTypeSize(argumentVariable.type);
+        }
+        return (argumentsSize == 0 ? "ret" : format("ret %d", argumentsSize)) + "\n";
     }
 
     private void initStack(StringBuilder stringBuilder){
